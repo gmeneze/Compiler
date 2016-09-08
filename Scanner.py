@@ -96,6 +96,7 @@ class Token(object):
             while char not in ['\n','']:
                 str = ''.join((str, char))
                 char = scanner.read(1)
+            scanner.consume(-1)
             return {'type':TOKEN_TYPES.META_STATEMENT, 'value':str}
         elif str[0] == '/':	
             char = scanner.read(1)
@@ -103,6 +104,7 @@ class Token(object):
                 while char not in ['\n','']:
                     str = ''.join((str, char))
                     char = scanner.read(1)
+                scanner.consume(-1)
                 return {'type':TOKEN_TYPES.META_STATEMENT, 'value':str}	
             else:
                 scanner.consume(-1)		
@@ -114,14 +116,14 @@ class Token(object):
     def classify(word, scanner):
         """ Identify the type of input word. 
             Returns dictionary containing type and value if identified, else returns None. """
-#        print("input word is: <%s>" % (word))  // debug
+#        print("input word is: <%s>" % (word))  # debug
         methods = [Token.is_reserved_word, Token.is_identifier, Token.is_number, Token.is_string, Token.is_meta_statement, Token.is_symbol]
         for method in methods:
             result = method(word, scanner)
             if result != None:
-#                print("result is: <%s>" % (result)) // debug
+#                print("result is: <%s>" % (result)) # debug
                 return result
-#        print("result is: <%s>" % (result))  // debug
+#        print("result is: <%s>" % (result))  # debug
         return None
 
 class Scanner(object):
@@ -177,7 +179,7 @@ if __name__ == '__main__':
     filename_arr = filename.split(".")	
     new_filename = filename_arr[0] + "_gen." + filename_arr[1]
     scanner = Scanner(filename)
-    target = open(new_filename, 'w')
+    target = open(new_filename, 'a+')
     target.truncate()
 
     for word in scanner.word():
@@ -186,14 +188,13 @@ if __name__ == '__main__':
             if dict['type'] == TOKEN_TYPES.IDENTIFIER and dict['value'] != 'main':
                 target.write("csc512" + dict['value'])
             elif dict['type'] == TOKEN_TYPES.META_STATEMENT:
-                target.write(dict['value'] + "\n")
+                # every meta statement on a new line
+                 target.write("\n" + dict['value'] + "\n")
             else:
                 target.write(dict['value'])
         else:
-            if word in [' ', '\t']:
+            if word in [' ', '\t', '\n']:
                 target.write(word)
-            elif word == '\n':
-                continue
             else:
                 target.write("\n!!ERROR!!\nThe word: <" + word + "> could not be classified as a valid token \nthe input program is illegal\n") 
                 raise ValueError("\n!!ERROR!!\nThe word: <" + word + "> could not be classified as a valid token \nthe input program is illegal\n")

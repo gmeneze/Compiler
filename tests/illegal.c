@@ -3,7 +3,7 @@
 #define write(x) printf("%d\n",x)
 #define print(x) printf(x)
 
-int array_1[4];
+int array_1[4]; //glen here
 int array_2[4];
 
 void populate_arrays(void)
