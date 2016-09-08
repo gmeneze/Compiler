@@ -96,7 +96,6 @@ class Token(object):
             while char not in ['\n','']:
                 str = ''.join((str, char))
                 char = scanner.read(1)
-            scanner.consume(-1)
             return {'type':TOKEN_TYPES.META_STATEMENT, 'value':str}
         elif str[0] == '/':	
             char = scanner.read(1)
@@ -104,10 +103,8 @@ class Token(object):
                 while char not in ['\n','']:
                     str = ''.join((str, char))
                     char = scanner.read(1)
-                scanner.consume(-1)
                 return {'type':TOKEN_TYPES.META_STATEMENT, 'value':str}	
             else:
-                scanner.consume(-1)		
                 return None
         else:
             return None
@@ -179,7 +176,7 @@ if __name__ == '__main__':
     filename_arr = filename.split(".")	
     new_filename = filename_arr[0] + "_gen." + filename_arr[1]
     scanner = Scanner(filename)
-    target = open(new_filename, 'a+')
+    target = open(new_filename, 'w')
     target.truncate()
 
     for word in scanner.word():
