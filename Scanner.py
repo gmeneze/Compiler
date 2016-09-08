@@ -114,14 +114,14 @@ class Token(object):
     def classify(word, scanner):
         """ Identify the type of input word. 
             Returns dictionary containing type and value if identified, else returns None. """
-        print("input word is: <%s>" % (word))
+#        print("input word is: <%s>" % (word))  // debug
         methods = [Token.is_reserved_word, Token.is_identifier, Token.is_number, Token.is_string, Token.is_meta_statement, Token.is_symbol]
         for method in methods:
             result = method(word, scanner)
             if result != None:
-                print("result is: <%s>" % (result))
+#                print("result is: <%s>" % (result)) // debug
                 return result
-        print("result is: <%s>" % (result))
+#        print("result is: <%s>" % (result))  // debug
         return None
 
 class Scanner(object):
@@ -195,4 +195,5 @@ if __name__ == '__main__':
             elif word == '\n':
                 continue
             else:
-                raise ValueError('the input program is illegal')
+                target.write("\n!!ERROR!!\nThe word: <" + word + "> could not be classified as a valid token \nthe input program is illegal\n") 
+                raise ValueError("\n!!ERROR!!\nThe word: <" + word + "> could not be classified as a valid token \nthe input program is illegal\n")
