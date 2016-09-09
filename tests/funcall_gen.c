@@ -1,56 +1,52 @@
 
 #include <stdio.h>
 
-
 #define read(x) scanf("%d",&x)
-
 
 #define write(x) printf("%d\n",x)
 
-
 #define print(x) printf(x)
 
-
-int csc512g()
+int cs512g()
 {
     return 1;
 }
 
-int csc512f()
+int cs512f()
 {
-    return csc512g() + 1;
+    return cs512g() + 1;
 }
 
-int csc512e()
+int cs512e()
 {
-    return csc512f() + 1;
+    return cs512f() + 1;
 }
 
-int csc512d()
+int cs512d()
 {
-    return csc512e() + 1;
+    return cs512e() + 1;
 }
 
-int csc512c()
+int cs512c()
 {
-    return csc512d() + 1;
+    return cs512d() + 1;
 }
 
-int csc512b()
+int cs512b()
 {
-    return csc512c() + 1;
+    return cs512c() + 1;
 }
 
-int csc512a()
+int cs512a()
 {
-    return csc512b() + 1;
+    return cs512b() + 1;
 }
 
 int main() 
 {
-    int csc512val;
-    csc512val = csc512a();
+    int cs512val;
+    cs512val = cs512a();
 
     print("I calculate the answer to be: ");
-    write(csc512val);
+    write(cs512val);
 }

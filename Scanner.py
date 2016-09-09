@@ -5,10 +5,10 @@ scanner.py (c) 2016 gmeneze@ncsu.edu, MIT licence
 Part of project for course CSC 512: Compiler Construction
 http://people.engr.ncsu.edu/xshen5/csc512_fall2016/projects/Scanner.html
 USAGE: 
-	python scanner.py <input_file>
+    python scanner.py <input_file>
 OUTPUT:
-	generates an output file with name obtained by appending "_gen" to the input file.
-	This generated file should contain code which produces the same output as the original input file when compiled and executed.
+    generates an output file with name obtained by appending "_gen" to the input file.
+    This generated file should contain code which produces the same output as the original input file when compiled and executed.
 """
 
 from __future__ import division,print_function
@@ -27,101 +27,80 @@ class Token(object):
     symbols = ['(', ')', '{', '}', '[', ']', ',', ';', '+', '-', '*', '/', '==', '!=', '>', '>=', '<', '<=', '=', '&&', '||']
 
     @staticmethod
-    def is_identifier(str, scanner):
-    	""" identify if the input string is an identifier. 
-    		Returns dictionary containing type and value if yes, else returns None. """
-        if str[0].isalpha():
-            for c in str[1:]:
-                if not (c.isdigit() or c.isalpha() or c == "_"):
-                    return None
-            return {'type':TOKEN_TYPES.IDENTIFIER, 'value':str}
-        else:
-            return None
-
-    @staticmethod
-    def is_number(str, scanner):
-        """ identify if the input string is a number. 
-        	Returns dictionary containing type and value if yes, else returns None. """
-        for c in str:
-            if not (c.isdigit()):
-                return None
-        return {'type':TOKEN_TYPES.NUMBER, 'value':str}
-
-    @staticmethod
-    def is_reserved_word(str, scanner):
-        """ identify if the input string is a reserved word. 
+    def is_identifier_or_reserved_word(character, scanner):
+        """ identify if the input string is an identifier. 
             Returns dictionary containing type and value if yes, else returns None. """
+        str = "" + character 
+        for ch in scanner.character():
+            if ch.isdigit() or ch.isalpha() or ch == "_":
+                str = ''.join((str, ch))
+            else:
+                scanner.consume(-1)
+                break
+
         if str in Token.reserved_words:
             return {'type':TOKEN_TYPES.RESERVED_WORD, 'value':str}
         else:
-            return None
+            return {'type':TOKEN_TYPES.IDENTIFIER, 'value':str}
 
     @staticmethod
-    def is_symbol(sym, scanner):
+    def is_number(character, scanner):
+        """ identify if the input string is a number. 
+            Returns dictionary containing type and value if yes, else returns None. """
+        str = "" + character
+        for ch in scanner.character():
+            if ch.isdigit():
+                str = ''.join((str, ch))
+            else:
+                scanner.consume(-1)
+                break
+
+        return {'type':TOKEN_TYPES.NUMBER, 'value':str}
+
+    @staticmethod
+    def is_symbol(character, scanner):
         """ identify if the input string is a symbol. 
             Returns dictionary containing type and value if yes, else returns None. """
-        new_sym = sym + scanner.read(1)
-        if new_sym in Token.symbols:
-            return {'type':TOKEN_TYPES.SYMBOL, 'value':new_sym}
+        str = "" + character + scanner.read(1)
+        if str in Token.symbols:
+            return {'type':TOKEN_TYPES.SYMBOL, 'value':str}  
+        elif character in Token.symbols:
+            scanner.consume(-1)
+            return {'type':TOKEN_TYPES.SYMBOL, 'value':character}
         else:
             scanner.consume(-1)
-            if sym in Token.symbols:
-                return {'type':TOKEN_TYPES.SYMBOL, 'value':sym}
-            else:
-                return None
-
-    @staticmethod
-    def is_string(str, scanner):
-        """ identify if the input string is a string. 
-            Returns dictionary containing type and value if yes, else returns None. """
-        if len(str) > 1 and str[0] == '"' and str[-1] == '"':
-            return {'type':TOKEN_TYPES.STRING, 'value':str}	
-        elif str[0] == '"':
-            char = scanner.read(1)
-            while char != '"':
-                if char == '':
-                    raise ValueError('the input program is illegal')
-                str = ''.join((str, char))
-                char = scanner.read(1)
-            return {'type':TOKEN_TYPES.STRING, 'value':str + char}  
-        else:
-			return None
-
-    @staticmethod
-    def is_meta_statement(str, scanner):
-        """ identify if the input string is a meta statement. 
-            Returns dictionary containing type and value if yes, else returns None. """
-        if str[0] == '#':	
-            char = scanner.read(1)
-            while char not in ['\n','']:
-                str = ''.join((str, char))
-                char = scanner.read(1)
-            return {'type':TOKEN_TYPES.META_STATEMENT, 'value':str}
-        elif str[0] == '/':	
-            char = scanner.read(1)
-            if char == "/":
-                while char not in ['\n','']:
-                    str = ''.join((str, char))
-                    char = scanner.read(1)
-                return {'type':TOKEN_TYPES.META_STATEMENT, 'value':str}	
-            else:
-                return None
-        else:
             return None
 
     @staticmethod
-    def classify(word, scanner):
-        """ Identify the type of input word. 
-            Returns dictionary containing type and value if identified, else returns None. """
-#        print("input word is: <%s>" % (word))  # debug
-        methods = [Token.is_reserved_word, Token.is_identifier, Token.is_number, Token.is_string, Token.is_meta_statement, Token.is_symbol]
-        for method in methods:
-            result = method(word, scanner)
-            if result != None:
-#                print("result is: <%s>" % (result)) # debug
-                return result
-#        print("result is: <%s>" % (result))  # debug
-        return None
+    def is_string(character, scanner):
+        """ identify if the input string is a string. 
+            Returns dictionary containing type and value if yes, else returns None. """
+        str = "" + character
+        for ch in scanner.character():
+            str = ''.join((str, ch))    
+            if ch == '"':
+                break
+
+        if str[-1] != '"':
+            raise ValueError("The string <" + "> was not terminated." )
+
+        return {'type':TOKEN_TYPES.STRING, 'value':str}
+
+    @staticmethod
+    def is_meta_statement(character, scanner):
+        """ identify if the input string is a meta statement. 
+            Returns dictionary containing type and value if yes, else returns None. """
+        if character == '/' and scanner.read(1) != '/':
+            scanner.consume(-1)
+            return Token.is_symbol(character, scanner)
+
+        str = "" + character
+        for ch in scanner.character():
+            str = ''.join((str, ch))
+            if ch == '\n':
+                break    
+
+        return {'type':TOKEN_TYPES.META_STATEMENT, 'value':str}
 
 class Scanner(object):
     """ Encapsulate all functionality related to reading a file. """
@@ -137,23 +116,37 @@ class Scanner(object):
                 break
             yield char
 
-    def word(self):
+    def get_next_token(self):
         """ read input file one word at a time. A word is a group of characters which are terminated
             by space or tab or newline or any of the symbols listed in Token.symbols. Each of these 
             delimiters are also considered words. """
-        str = ""
-        for c in self.character():
-            if c in [' ', '\t','\n'] + Token.symbols:
-                if str != "":
-                    self.consume(-1)
-                    yield str
-                    str = ""
-                else:
-                    yield "" + c
+        for ch in self.character():
+            if ch in [' ', '\n', '\t']:
+                return {'type': 0, 'value':ch}  # 0 stands for delimiter
+            elif ch.isalpha():
+                return Token.is_identifier_or_reserved_word(ch, self)
+            elif ch.isdigit():
+                return Token.is_number(ch, self)
+            elif ch == '"':
+                return Token.is_string(ch, self)
+            elif ch in ['#', '/']:
+                return Token.is_meta_statement(ch, self)
             else:
-                str = ''.join((str, c))
-        if str != "":
-            yield str		
+                ret_val = Token.is_symbol(ch, self)
+                if not ret_val:
+                   return {'type': -1, 'value': ch}
+                else:
+                   return ret_val
+        return  {'type': -1, 'value': ''}
+
+    def has_more_tokens(self):
+        """ return True if there are more tokens which need to be processed. """
+        ch = self.read(1)
+        self.consume(-1)
+        if ch == '':
+            return False
+        else:
+            return True
 
     def read(self, number):
         """ Read given number of characters from the file, if file has already been read then the tell count 
@@ -161,11 +154,11 @@ class Scanner(object):
             rely on the tell count being incremented after each read. """
         char = self.file.read(number)
         if char == '':
-            self.file.seek(self.file.tell() + 1)	
+            self.file.seek(self.file.tell() + 1)    
         return char
 
     def consume(self, number):
-        """ Does a relative seek to the specified position in the file """
+        """ Does a relative seek to the specified position in the file. """
         self.file.seek(number,1)
 
 
@@ -173,25 +166,20 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         sys.exit()
     filename = sys.argv[1]
-    filename_arr = filename.split(".")	
+    filename_arr = filename.split(".")  
     new_filename = filename_arr[0] + "_gen." + filename_arr[1]
     scanner = Scanner(filename)
     target = open(new_filename, 'w')
     target.truncate()
 
-    for word in scanner.word():
-        dict=Token.classify(word,scanner)
-        if dict!=None:
-            if dict['type'] == TOKEN_TYPES.IDENTIFIER and dict['value'] != 'main':
-                target.write("csc512" + dict['value'])
-            elif dict['type'] == TOKEN_TYPES.META_STATEMENT:
-                # every meta statement on a new line
-                 target.write("\n" + dict['value'] + "\n")
-            else:
-                target.write(dict['value'])
+    while(scanner.has_more_tokens()):
+        token = scanner.get_next_token()
+        if  token['type'] == -1:
+            target.write("\n!!ERROR!!\n <" + token['value'] + "> could not be classified as a valid token \nthe input program is illegal\n")
+            raise ValueError("\n!!ERROR!!\n <" + token['value'] + "> could not be classified as a valid token \nthe input program is illegal\n") 
+        elif token['type'] == TOKEN_TYPES.IDENTIFIER and token['value'] != 'main':
+            target.write("cs512" + token['value'])
+        elif token['type'] == TOKEN_TYPES.META_STATEMENT:
+            target.write("\n" + token['value'])
         else:
-            if word in [' ', '\t', '\n']:
-                target.write(word)
-            else:
-                target.write("\n!!ERROR!!\nThe word: <" + word + "> could not be classified as a valid token \nthe input program is illegal\n") 
-                raise ValueError("\n!!ERROR!!\nThe word: <" + word + "> could not be classified as a valid token \nthe input program is illegal\n")
+            target.write(token['value'])

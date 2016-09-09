@@ -1,66 +1,62 @@
 
 #include <stdio.h>
 
-
 #define read(x) scanf("%d",&x)
-
 
 #define write(x) printf("%d\n",x)
 
-
 #define print(x) printf(x)
 
-
-int csc512square(int csc512x)
+int cs512square(int cs512x)
 {
-    return (csc512x*csc512x+500)/1000;
+    return (cs512x*cs512x+500)/1000;
 }
 
-int csc512complex_abs_squared(int csc512real, int csc512imag)
+int cs512complex_abs_squared(int cs512real, int cs512imag)
 {
-    return csc512square(csc512real)+csc512square(csc512imag);
+    return cs512square(cs512real)+cs512square(cs512imag);
 }
 
-int csc512check_for_bail(int csc512real, int csc512imag)
+int cs512check_for_bail(int cs512real, int cs512imag)
 {
-    if (csc512real > 4000 || csc512imag > 4000)
+    if (cs512real > 4000 || cs512imag > 4000)
     {
 	return 0;
     }
-    if (1600 > csc512complex_abs_squared(csc512real, csc512imag))
+    if (1600 > cs512complex_abs_squared(cs512real, cs512imag))
     {
 	return 0;
     }
     return 1;
 }
 
-int csc512absval(int csc512x)
+int cs512absval(int cs512x)
 {
-    if (csc512x < 0)
+    if (cs512x < 0)
     {
-	return -1 * csc512x;
+	return -1 * cs512x;
     }
-    return csc512x;
+    return cs512x;
 }
 
-int csc512checkpixel(int csc512x, int csc512y)
+int cs512checkpixel(int cs512x, int cs512y)
 {
-    int csc512real, csc512imag, csc512temp, csc512iter, csc512bail;
-    csc512real = 0;
-    csc512imag = 0;
-    csc512iter = 0;
-    csc512bail = 16000;
-    while (csc512iter < 255)
+    int cs512real, cs512imag, cs512temp, cs512iter, cs512bail;
+    cs512real = 0;
+    cs512imag = 0;
+    cs512iter = 0;
+    cs512bail = 16000;
+    while (cs512iter < 255)
     {
-	csc512temp = csc512square(csc512real) - csc512square(csc512imag) + csc512x;
-	csc512imag = ((2 * csc512real * csc512imag + 500) / 1000) + csc512y;
-	csc512real = csc512temp;
+	cs512temp = cs512square(cs512real) - cs512square(cs512imag) + cs512x;
+	cs512imag = ((2 * cs512real * cs512imag + 500) / 1000) + cs512y;
+	cs512real = cs512temp;
 
-	if (csc512absval(csc512real) + csc512absval(csc512imag) > 5000)
+	if (cs512absval(cs512real) + cs512absval(cs512imag) > 5000)
 	{
 	    return 0;
 	}
-	csc512iter = csc512iter + 1;
+	cs512iter = cs512iter + 1;
     }
 
     return 1;
@@ -68,28 +64,28 @@ int csc512checkpixel(int csc512x, int csc512y)
 
 int main() 
 {
-    int csc512x, csc512y, csc512on;
-    csc512y = 950;
+    int cs512x, cs512y, cs512on;
+    cs512y = 950;
 
-    while (csc512y > -950)
+    while (cs512y > -950)
     {
-	csc512x = -2100;
-	while (csc512x < 1000)
+	cs512x = -2100;
+	while (cs512x < 1000)
 	{
-	    csc512on = csc512checkpixel(csc512x, csc512y);
-	    if (1 == csc512on)
+	    cs512on = cs512checkpixel(cs512x, cs512y);
+	    if (1 == cs512on)
 	    {
 		print("X");
 	    }
-	    if (0 == csc512on)
+	    if (0 == cs512on)
 	    {
 		print(" ");
 	    }
-	    csc512x = csc512x + 40;
+	    cs512x = cs512x + 40;
 	}
 	print("\n");
 
-	csc512y = csc512y - 50;
+	cs512y = cs512y - 50;
     }
 }
 

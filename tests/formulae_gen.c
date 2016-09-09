@@ -1,67 +1,63 @@
 
 #include <stdio.h>
 
-
 #define read(x) scanf("%d",&x)
-
 
 #define write(x) printf("%d\n",x)
 
-
 #define print(x) printf(x)
 
-
-int csc512getinput(void)
+int cs512getinput(void)
 {
-    int csc512a;
-    csc512a = 0;
-    while (0 >= csc512a)
+    int cs512a;
+    cs512a = 0;
+    while (0 >= cs512a)
     {
-	read(csc512a);
-	if (0 > csc512a)
+	read(cs512a);
+	if (0 > cs512a)
 	{
 	    print("I need a positive number: ");
 	}
     }
 
-    return csc512a;
+    return cs512a;
 }
 
 int main() 
 {
-    int csc512coneradius, csc512coneheight;
-    int csc512circleradius;
-    int csc512trianglebase, csc512triangleheight;
-    int csc512sphereradius;
+    int cs512coneradius, cs512coneheight;
+    int cs512circleradius;
+    int cs512trianglebase, cs512triangleheight;
+    int cs512sphereradius;
 
-    int csc512cone, csc512circle, csc512triangle, csc512sphere;
-    int csc512pi;
-    csc512pi = 3141;
+    int cs512cone, cs512circle, cs512triangle, cs512sphere;
+    int cs512pi;
+    cs512pi = 3141;
 
     print("Give me a radius for the base of a cone: ");
-    csc512coneradius = csc512getinput();
+    cs512coneradius = cs512getinput();
     print("Give me a height for a cone: ");
-    csc512coneheight = csc512getinput();
+    cs512coneheight = cs512getinput();
     print("Give me a radius for a circle: ");
-    csc512circleradius = csc512getinput();
+    cs512circleradius = cs512getinput();
     print("Give me a length for the base of a triangle: ");
-    csc512trianglebase = csc512getinput();
+    cs512trianglebase = cs512getinput();
     print("Give me a height for a triangle: ");
-    csc512triangleheight = csc512getinput();
+    cs512triangleheight = cs512getinput();
     print("Give me a radius for a sphere: ");
-    csc512sphereradius = csc512getinput();
+    cs512sphereradius = cs512getinput();
 
-    csc512cone = (csc512pi*csc512coneradius*csc512coneradius*csc512coneheight + 500) / 3000;
-    csc512circle = (csc512pi*csc512circleradius*csc512circleradius + 500) / 1000;
-    csc512triangle = (csc512trianglebase*csc512triangleheight) / 2;
-    csc512sphere = (4*csc512pi*csc512sphereradius*csc512sphereradius*csc512sphereradius+500) / 3000;
+    cs512cone = (cs512pi*cs512coneradius*cs512coneradius*cs512coneheight + 500) / 3000;
+    cs512circle = (cs512pi*cs512circleradius*cs512circleradius + 500) / 1000;
+    cs512triangle = (cs512trianglebase*cs512triangleheight) / 2;
+    cs512sphere = (4*cs512pi*cs512sphereradius*cs512sphereradius*cs512sphereradius+500) / 3000;
 
     print("The volume of the cone is: ");
-    write(csc512cone);
+    write(cs512cone);
     print("The area of the circle is: ");
-    write(csc512circle);
+    write(cs512circle);
     print("The area of the triangle is: ");
-    write(csc512triangle);
+    write(cs512triangle);
     print("The volume of the sphere is: ");
-    write(csc512sphere);
+    write(cs512sphere);
 }

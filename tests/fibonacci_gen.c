@@ -1,58 +1,54 @@
 
 #include <stdio.h>
 
-
 #define read(x) scanf("%d",&x)
-
 
 #define write(x) printf("%d\n",x)
 
-
 #define print(x) printf(x)
 
+int cs512array[16];
 
-int csc512array[16];
-
-void csc512initialize_array(void)
+void cs512initialize_array(void)
 {
-    int csc512idx, csc512bound;
-    csc512bound = 16;
+    int cs512idx, cs512bound;
+    cs512bound = 16;
 
-    csc512idx = 0;
-    while (csc512idx < csc512bound)
+    cs512idx = 0;
+    while (cs512idx < cs512bound)
     {
-	csc512array[csc512idx] = -1;
-	csc512idx = csc512idx + 1;
+	cs512array[cs512idx] = -1;
+	cs512idx = cs512idx + 1;
     }
 }
 
-int csc512fib(int csc512val)
+int cs512fib(int cs512val)
 {
-    if (csc512val < 2)
+    if (cs512val < 2)
     {
 	return 1;
     }
-    if (csc512array[csc512val] == -1)
+    if (cs512array[cs512val] == -1)
     {
-	csc512array[csc512val] = csc512fib(csc512val - 1) + csc512fib(csc512val - 2);
+	cs512array[cs512val] = cs512fib(cs512val - 1) + cs512fib(cs512val - 2);
     }
 
-    return csc512array[csc512val];
+    return cs512array[cs512val];
 }
 
 int main(void)
 {
-    int csc512idx, csc512bound;
-    csc512bound = 16;
+    int cs512idx, cs512bound;
+    cs512bound = 16;
 
-    csc512initialize_array();
+    cs512initialize_array();
     
-    csc512idx = 0;
+    cs512idx = 0;
 
     print("The first few digits of the Fibonacci sequence are:\n");
-    while (csc512idx < csc512bound)
+    while (cs512idx < cs512bound)
     {
-	write(csc512fib(csc512idx));
-	csc512idx = csc512idx + 1;
+	write(cs512fib(cs512idx));
+	cs512idx = cs512idx + 1;
     }
 }

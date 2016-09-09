@@ -1,22 +1,19 @@
 
 #include <stdio.h>
 
-
 #define read(x) scanf("%d",&x)
-
 
 #define write(x) printf("%d\n",x)
 
-
 int main() {
-    int csc512a, csc512b;
-    read(csc512a);
-    read(csc512b);
-    if (csc512a>=csc512b) {
-        write(csc512a);
+    int cs512a, cs512b;
+    read(cs512a);
+    read(cs512b);
+    if (cs512a>=cs512b) {
+        write(cs512a);
     }
-    if (csc512b>csc512a) {
-        write(csc512b);
+    if (cs512b>cs512a) {
+        write(cs512b);
     }
 }
 

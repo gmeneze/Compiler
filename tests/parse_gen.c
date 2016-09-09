@@ -1,39 +1,35 @@
 
 #include <stdio.h>
 
-
 #define read(x) scanf("%d",&x)
-
 
 #define write(x) printf("%d\n",x)
 
-
 #define print(x) printf(x)
 
-
-void csc512bar(void)
+void cs512bar(void)
 {
-    int csc512x, csc512y;
-    if (csc512x > csc512y)
+    int cs512x, cs512y;
+    if (cs512x > cs512y)
     {
 	return;
     }
 
-    csc512x = csc512y;
+    cs512x = cs512y;
     return;
 }
 
-void csc512foo(void)
+void cs512foo(void)
 {
-    csc512bar();
+    cs512bar();
 }
 
 int main(void)
 {
-    int csc512x,csc512y;
+    int cs512x,cs512y;
     print("Calling foo()...\n");
-    csc512foo();
+    cs512foo();
     print("Called foo().\n");
 
-    csc512x == csc512y;
+    cs512x == cs512y;
 }

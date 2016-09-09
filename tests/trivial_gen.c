@@ -1,19 +1,16 @@
 
 #include <stdio.h>
 
-
 #define read(x) scanf("%d",&x)
-
 
 #define write(x) printf("%d\n",x)
 
-
-void csc512foo( ) {
-    int csc512a;
-    read(csc512a) ;
-    write(csc512a) ;
+void cs512foo( ) {
+    int cs512a;
+    read(cs512a) ;
+    write(cs512a) ;
 }
 
 int main( ) {
-  csc512foo( ) ;
+  cs512foo( ) ;
 }
