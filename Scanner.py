@@ -78,11 +78,13 @@ class Token(object):
         str = "" + character
         for ch in scanner.character():
             str = ''.join((str, ch))    
-            if ch == '"':
+            if ch == '\n':
+                 raise ValueError("Multiline strings are not allowed")
+            elif ch == '"':
                 break
 
         if str[-1] != '"':
-            raise ValueError("The string <" + "> was not terminated." )
+            raise ValueError("The string <" + "> was not terminated.")
 
         return {'type':TOKEN_TYPES.STRING, 'value':str}
 
