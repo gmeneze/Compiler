@@ -1,9 +1,13 @@
 How to run scanner?
+No compilation is needed. 
+Run it as follows :-
 python Scanner.py <input-file>
+
 
 Where is output file created?
 In the same folder, the naming convention mentioned in project is followed. 
 That is, "foo.c" will become "foo_gen.c". 
+
 
 Scanner Implementation :-
 1. Data Structures:
