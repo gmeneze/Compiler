@@ -19,7 +19,7 @@
 
 8. <func> --> <func decl> <func left factor one> 
 
-9. <func left factor> --> semicolon
+9. <func left factor one> --> semicolon
                         | left_brace <func left factor two>
 
 10. <func left factor two> --> <data decls> <func left factor three> 
