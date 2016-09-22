@@ -1,0 +1,126 @@
+<program> --> <data decls> 
+            | <data decls> <func>
+            | <data decls> <func> <func list>
+            | <func>
+            | <func> <func list>
+            | empty
+
+<func list> --> <func> 
+            | <func> <func list> 
+
+<func> --> <func decl> semicolon 
+        | <func decl> left_brace <data decls> right_brace 
+        | <func decl> left_brace <data decls> <statements> right_brace 
+
+<func decl> --> <type name> ID left_parenthesis right_parenthesis 
+              | <type name> ID left_parenthesis void right_parenthesis
+              | <type name> ID left_parenthesis <non-empty list> right_parenthesis
+
+<type name> --> int 
+             | void 
+             | binary 
+             | decimal 
+
+<non-empty list> --> int ID <non-empty list prime>
+                  | void ID <non-empty list prime>
+                  | binary ID <non-empty list prime>
+                  | decimal ID <non-empty list prime>
+
+<non-empty list prime> --> comma <type name> ID <non-empty list prime>
+                         | empty
+
+<data decls> --> int <id list> semicolon
+               | void <id list> semicolon
+               | binary <id list> semicolon
+               | decimal <id list> semicolon
+               | int <id list> semicolon <data decls> 
+               | void <id list> semicolon <data decls>
+               | binary <id list> semicolon <data decls>
+               | decimal <id list> semicolon <data decls>
+
+<id list> --> <id> <id list prime>
+
+<id list prime> --> comma <id list prime>
+           | empty
+
+<id> --> ID 
+      | ID left_bracket <expression> right_bracket
+
+<block statements> --> left_brace right_brace 
+              | left_brace <statements> right_brace
+
+<statements> --> <statement> 
+              | <statement> <statements> 
+
+<statement> --> <assignment> 
+              | <func call> 
+              | <if statement> 
+              | <while statement> 
+              | <return statement> 
+              | <break statement> 
+              | <continue statement> 
+              | read left_parenthesis  ID right_parenthesis semicolon 
+              | write left_parenthesis <expression> right_parenthesis semicolon 
+              | print left_parenthesis  STRING right_parenthesis semicolon 
+
+<assignment> --> ID equal_sign <expression> semicolon 
+              | ID left_bracket <expression> right_bracket equal_sign <expression> semicolon
+
+<func call> --> ID left_parenthesis right_parenthesis semicolon
+              | ID left_parenthesis <non-empty expr list> right_parenthesis semicolon  
+
+<non-empty expr list> --> <expression> <non-empty expr list prime>
+
+<non-empty expr list prime> --> comma <expression> <non-empty expr list prime>
+                              | empty
+ 
+<if statement> --> if left_parenthesis <condition expression> right_parenthesis <block statements> 
+
+<condition expression> -->  <condition> 
+                         | <condition> <condition op> <condition> 
+
+<condition op> --> double_and_sign 
+                 | double_or_sign
+
+<condition> --> <expression> <comparison op> <expression> 
+
+<comparison op> --> == 
+                  | != 
+                  | > 
+                  | >= 
+                  | < 
+                  | <=
+
+<while statement> --> while left_parenthesis <condition expression> right_parenthesis <block statements> 
+
+<return statement> --> return <expression> semicolon 
+                     | return semicolon 
+
+<break statement> ---> break semicolon 
+
+<continue statement> ---> continue semicolon
+
+<expression> --> <term> <expression prime>
+
+<expression prime> --> <addop> <term> <expression prime>
+               |  empty 
+
+<addop> --> plus_sign 
+          | minus_sign
+
+<term> --> <factor> <term prime>
+
+<term prime> --> <mulop> <factor> <term prime>
+               | empty
+
+<mulop> --> star_sign 
+          | forward_slash 
+
+<factor> --> ID 
+           | ID left_bracket <expression> right_bracket 
+           | ID left_parenthesis right_parenthesis 
+           | ID left_parenthesis <non-empty expr list> right_parenthesis
+           | NUMBER 
+           | minus_sign NUMBER 
+           | left_parenthesis <expression> right_parenthesis
+

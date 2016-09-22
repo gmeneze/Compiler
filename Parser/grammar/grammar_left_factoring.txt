@@ -1,0 +1,159 @@
+<program> --> <type name> <program left factor three>
+            | empty
+
+<program left factor one> --> <func> <program left factor two>
+                            | empty  
+
+<program left factor two> --> empty
+                            | <func list>
+
+<program left factor three> --> ID <program left factor four>
+
+<program left factor four> --> <id left factor> <id list prime> semicolon <data decls left factor> <program left factor one>
+                             | <func decl left factor two> <func left factor one> <program left factor two> 
+
+<func list> --> <func> <func list left factor>
+
+<func list left factor> --> empty
+                          | <func list>
+
+<func> --> <func decl> <func left factor one> 
+
+<func left factor> --> semicolon
+                     | left_brace <func left factor two>
+
+<func left factor two> --> <data decls> <func left factor three> 
+
+<func left factor three> --> right_brace
+                           | <statements> right_brace 
+
+<func decl> --> <type name> <func decl left factor one>
+
+<func decl left factor one> --> ID <func decl left factor two> 
+
+<func decl left factor two> --> left_parenthesis <func decl left factor three>
+
+<func decl left factor three> --> right_parenthesis
+                                | void right_parenthesis
+                                | <non-empty list> right_parenthesis
+
+<type name> --> int 
+             | void 
+             | binary 
+             | decimal 
+
+<non-empty list> --> <type name> ID <non-empty list prime>
+
+<non-empty list prime> --> comma <type name> ID <non-empty list prime>
+                         | empty
+
+<data decls> --> <type name> <id list> semicolon <data decls left factor>
+
+<data decls left factor> --> <data decls>
+               | empty
+
+<id list> --> <id> <id list prime>
+
+<id list prime> --> comma <id list prime>
+           | empty
+
+<id> --> ID <id left factor>
+
+<id left factor> --> left_bracket <expression> right_bracket
+                   | empty
+
+<block statements> --> left_brace <block statements left factor> 
+
+<block statements left factor> --> right_brace
+                                 | <statements> right_brace
+
+<statements> --> <statement> <statements left factor>
+
+<statements left factor> --> <statements> 
+              | empty 
+
+<statement> --> ID <statement left factor>
+              | <if statement> 
+              | <while statement> 
+              | <return statement> 
+              | <break statement> 
+              | <continue statement> 
+              | read left_parenthesis  ID right_parenthesis semicolon 
+              | write left_parenthesis <expression> right_parenthesis semicolon 
+              | print left_parenthesis  STRING right_parenthesis semicolon 
+
+<statement left factor> --> <assignment left factor>
+                          | <func call left factor one> 
+
+<assignment> --> ID <assignment left factor>
+
+<assignment left factor> --> equal_sign <expression> semicolon 
+              | left_bracket <expression> right_bracket equal_sign <expression> semicolon
+
+<func call> --> ID <func call left factor one>   
+
+<func call left factor one> --> left_parenthesis <func call left factor two>
+
+<func call left factor two> --> right_parenthesis semicolon
+                              | <non-empty expr list> right_parenthesis semicolon
+
+<non-empty expr list> --> <expression> <non-empty expr list prime>
+
+<non-empty expr list prime> --> comma <expression> <non-empty expr list prime>
+                              | empty
+ 
+<if statement> --> if left_parenthesis <condition expression> right_parenthesis <block statements> 
+
+<condition expression> -->  <condition> <condition expression left factor>
+
+<condition expression left factor> --> <condition op> <condition>
+                                     | empty
+
+<condition op> --> double_and_sign 
+                 | double_or_sign
+
+<condition> --> <expression> <comparison op> <expression> 
+
+<comparison op> --> == 
+                  | != 
+                  | > 
+                  | >= 
+                  | < 
+                  | <=
+
+<while statement> --> while left_parenthesis <condition expression> right_parenthesis <block statements> 
+
+<return statement> --> return <return statement left factor> 
+
+<return statement left factor> --> <expression> semicolon 
+                                 | semicolon
+
+<break statement> ---> break semicolon 
+
+<continue statement> ---> continue semicolon
+
+<expression> --> <term> <expression prime>
+
+<expression prime> --> <addop> <term> <expression prime>
+               |  empty 
+
+<addop> --> plus_sign 
+          | minus_sign
+
+<term> --> <factor> <term prime>
+
+<term prime> --> <mulop> <factor> <term prime>
+               | empty
+
+<mulop> --> star_sign 
+          | forward_slash 
+
+<factor> --> ID <factor left factor>
+           | NUMBER 
+           | minus_sign NUMBER 
+           | left_parenthesis <expression> right_parenthesis
+
+<factor left factor> --> empty
+                       | left_bracket <expression> right_bracket
+                       | left_parenthesis right_parenthesis
+                       | left_parenthesis <non-empty expr list> right_parenthesis
