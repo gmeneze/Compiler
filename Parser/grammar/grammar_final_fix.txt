@@ -1,0 +1,144 @@
+<program> --> empty
+            | <type name> <program-z1> 
+
+<program-z1> --> ID <program-z2> 
+
+<program-z2> --> left_parenthesis <parameter list> right_parenthesis <func-z1> <func list>
+            | <id-z1> <id list prime> <data decls-z2> <func list>
+
+<func list> --> empty 
+            | <func> <func list> 
+
+<func> --> <func decl> <func-z1> 
+
+<func-z1> --> semicolon
+            | left_brace <func-z2> 
+
+<func-z2> --> <statements> right_brace
+            | <data decls> <statements> right_brace 
+
+<func decl> --> <type name> ID left_parenthesis <parameter list> right_parenthesis 
+
+<type name> --> int 
+             | void 
+             | binary 
+             | decimal 
+
+<parameter list> --> empty 
+                  | void <parameter list-z1>
+                  | int ID <non-empty list prime> 
+                  | binary ID <non-empty list prime>
+                  | decimal ID <non-empty list prime>
+
+<parameter list-z1> --> empty
+                      | ID <non-empty list prime>
+
+<non-empty list> --> <type name> ID <non-empty list prime>
+
+<non-empty list prime> --> empty
+                         | comma <type name> ID <non-empty list prime>
+
+<data decls> --> <type name> <data decls-z1> 
+
+<data decls-z1> --> <id list> <data decls-z2>
+
+<data decls-z2> --> semicolon <data decls-z3>
+
+<data decls-z3> --> empty
+                  | <data decls>
+
+<id list> --> <id> <id list prime> 
+
+<id list prime> --> empty
+                  | comma <id> <id list prime>
+
+<id> --> ID <id-z1> 
+
+<id-z1> --> empty 
+          | left_bracket <expression> right_bracket 
+
+<block statements> --> left_brace <statements> right_brace 
+
+<statements> --> empty 
+              | <statement> <statements> 
+
+<statement> --> ID <statement-z1>  
+              | <if statement>
+              | <while statement> 
+              | <return statement> 
+              | <break statement> 
+              | <continue statement> 
+              | read left_parenthesis  ID right_parenthesis semicolon 
+              | write left_parenthesis <expression> right_parenthesis semicolon 
+              | print left_parenthesis  STRING right_parenthesis semicolon 
+
+<statement-z1> --> <id-z1> equal_sign <expression> semicolon 
+                 | left_parenthesis <expr list> right_parenthesis semicolon   
+
+<assignment> --> <id> equal_sign <expression> semicolon 
+
+<func call> --> ID left_parenthesis <expr list> right_parenthesis semicolon 
+
+<expr list> --> empty 
+              | <non-empty expr list> 
+
+<non-empty expr list> --> <expression> <non-empty expr list prime>
+
+<non-empty expr list prime> --> empty
+                              | comma <expression> <non-empty expr list prime>
+
+<if statement> --> if left_parenthesis <condition expression> right_parenthesis <block statements> 
+
+<condition expression> -->  <condition> <condition expression-z1> 
+
+<condition expression-z1> --> empty
+                            | <condition op> <condition>
+
+<condition op> --> double_and_sign 
+                 | double_or_sign
+
+<condition> --> <expression> <comparison op> <expression> 
+
+<comparison op> --> == 
+                  | != 
+                  | > 
+                  | >= 
+                  | < 
+                  | <=
+
+<while statement> --> while left_parenthesis <condition expression> right_parenthesis <block statements> 
+
+<return statement> --> return <return statement-z1> 
+
+<return statement-z1> --> <expression> semicolon
+                        | semicolon 
+
+<break statement> ---> break semicolon 
+
+<continue statement> ---> continue semicolon
+
+<expression> --> <term> <expression prime>
+
+<expression prime> --> empty
+                     | <addop> <term> 
+
+<addop> --> plus_sign 
+          | minus_sign
+
+<term> --> <factor> <term prime>
+
+<term prime> --> empty
+               | <mulop> <factor> <term prime>
+
+<mulop> --> star_sign 
+          | forward_slash 
+
+<factor> --> ID <factor-z1> 
+           | NUMBER 
+           | minus_sign NUMBER 
+           | left_parenthesis <expression> right_parenthesis
+
+<factor-z1> --> empty 
+              | left_bracket <expression> right_bracket 
+              | left_parenthesis <expr list> right_parenthesis 
+

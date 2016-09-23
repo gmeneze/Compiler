@@ -5,6 +5,14 @@ FIRST and FOLLOW SETS
 FIRST - {empty, int, void, binary, decimal}
 FOLLOW - {eof}
 
+2. <program-z1>
+FIRST - {ID}
+FOLLOW - {eof}
+	
+3. <program-z2>
+FIRST - {empty, left_paranthesis, left_bracket, comma, semicolon}
+FOLLOW - {eof}
+
 2. <func list>
 FIRST - {empty, int, void, binary, decimal}
 FOLLOW - {eof}
@@ -25,16 +33,32 @@ FOLLOW - {ID}
 FIRST - {empty, int, void, binary, decimal}
 FOLLOW - {right parenthesis}
 
+7. <parameter list-z1>
+FIRST - {empty, ID}
+FOLLOW - {right parenthesis}
+
 7. <non-empty list>
 FIRST - {int, void, binary, decimal}
-FOLLOW - {right parenthesis}
+FOLLOW - {}
 
 8. <non-empty list prime>
 FIRST - {empty, comma}
 FOLLOW - {right parenthesis}
 
-9. <data decls>   # fixing by removing empty
+9. <data decls>  
 FIRST - {int, void, binary, decimal}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
+
+10. <data decls-z1>
+FIRST - {ID}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
+
+11. <data decls-z2>
+FIRST - {semicolon}
+FOLLOW - {int, void, binary, decimal, eof, right_brace, ID, if, while, return, break, continue, read, write, print}
+
+12. <data decls-z3>
+FIRST - {empty, int, void, binary, decimal}
 FOLLOW - {int, void, binary, decimal, eof, right_brace, ID, if, while, return, break, continue, read, write, print}
 
 10. <id list>
