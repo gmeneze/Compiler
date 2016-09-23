@@ -1,204 +1,146 @@
-First and Follow Sets
----------------------
+FIRST and FOLLOW SETS
+----------------------
 
 1. <program>
-First : {int, void, binary, decimal, empty}
-Follow: {eof}
+FIRST - {empty, int, void, binary, decimal}
+FOLLOW - {eof}
 
-2. <program left factor one>
-First: {int, void, binary, decimal, empty}
-Follow: {eof}
+2. <func list>
+FIRST - {empty, int, void, binary, decimal}
+FOLLOW - {eof}
 
-3. <program left factor two>
-First : {int, void, binary, decimal, empty}
-Follow: {eof}
+3. <func>
+FIRST - {int, void, binary, decimal}
+FOLLOW - {int, void, binary, decimal, eof}
 
-4. <program left factor three>
-First : {ID}
-Follow: {eof}
+4. <func decl>
+FIRST - {int, void, binary, decimal}
+FOLLOW - {semicolon, left_brace}
 
-5. <program left factor four>
-First : {left_bracket, empty, comma, semicolon, left_paranthesis}
-Follow: {eof}
+5. <type name>
+FIRST - {int, void, binary, decimal}
+FOLLOW - {ID}
 
-6. <func list>
-First : {int, void, binary, decimal}
-Follow: {eof}
+6. <parameter list>
+FIRST - {empty, int, void, binary, decimal}
+FOLLOW - {right parenthesis}
 
-7. <func list left factor>
-First : {empty, int, void, binary, decimal}
-Follow: {eof}
+7. <non-empty list>
+FIRST - {int, void, binary, decimal}
+FOLLOW - {right parenthesis}
 
-8. <func>
-First : {int, void, binary, decimal}
-Follow: {eof, int, void, binary, decimal}
+8. <non-empty list prime>
+FIRST - {empty, comma}
+FOLLOW - {right parenthesis}
 
-9. <func left factor one> 
-First : {semicolon, left_brace}
-Follow: {eof, int, void, binary, decimal}
+9. <data decls>   # fixing by removing empty
+FIRST - {int, void, binary, decimal}
+FOLLOW - {int, void, binary, decimal, eof, right_brace, ID, if, while, return, break, continue, read, write, print}
 
-10. <func left factor two>
-First : {int, void, binary, decimal}
-Follow: {eof, int, void, binary, decimal}
+10. <id list>
+FIRST - {ID}
+FOLLOW - {semicolon}
 
-11. <func left factor three>
-First : {right_brace, ID, if, while, return, continue, read, write, print}
-Follow: {eof, int, void, binary, decimal}
+11. <id list prime>
+FIRST - {empty, comma}
+FOLLOW - {semicolon}
 
-12. <func decl>
-First : {int, void, binary, decimal}
-Follow : {semicolon, left_brace}
+12. <id> 
+FIRST - {ID}
+FOLLOW - {semicolon,comma, equal_sign}
 
-13. <func decl left factor one>
-First : {ID}
-Follow: {semicolon, left_brace}
+13. <block statements>
+FIRST - {left_brace}
+FOLLOW - {FOLLOW(if statement) U FOLLOW(while statement)}
 
-14. <func decl left factor two>
-First : {left_paranthesis}
-Follow: {semicolon, left_brace}
+14. <statements>
+FIRST - {empty, ID, if, while, return, break, continue, read, write, print}
+FOLLOW - {right_brace}
 
-15. <func decl left factor three>
-First : {right_paranthesis, void, int, binary, decimal}
-Follow: {semicolon, left_brace}
+15. <statement>
+FIRST - {ID, if, while, return, break, continue, read, write, print}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
-16. <func decl left factory four>
-First : {right_paranthesis, ID}
-Follow: {semicolon, left_brace}
+16. <assignment>
+FIRST - {ID}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
-17. <type name>
-First : {int, void, binary, decimal}
-Follow: {ID}
+17. <func call>
+FIRST - {ID}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
-18. <non-empty list>
-First : {int, void, binary, decimal}
-Follow: {}
+18. <expr list>
+FIRST - {empty, ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {right_parenthesis}
 
-19. <non-empty list prime>
-First : {comma, empty}
-Follow: {right_paranthesis}
+19. <non-empty expr list>
+FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {right_parenthesis}
 
-20. <data decls>
-First : {int, void, binary, decimal}
-Follow: {right_brace, ID, if, while, return, continue, read, write, print}
+20. <non-empty expr list prime>
+FIRST - {empty, comma}
+FOLLOW - {right_parenthesis}
 
-21. <data decls left factor>
-First : {int, void, binary, decimal, empty}
-Follow: {int, void, binary, decimal, eof, right_brace, ID, if, while, return, continue, read, write, print}
+21. <if statement>
+FIRST - {if}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
-22. <id list>
-First : {ID}
-Follow: {semicolon}
+22. <condition expression>
+FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {right_parenthesis}
 
-23. <id list prime>
-First : {comma, empty}
-Follow : {semicolon}
+23. <condition op>
+FIRST - {double_and_sign, double_or_sign}
+FOLLOW - {ID, NUMBER, minus_sign, left_parenthesis}
 
-24. <id>
-First : {ID}
-Follow: {comma, semicolon}
+24. <condition>
+FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {right_parenthesis, double_and_sign, double_or_sign}
 
-25. <id left factor>
-First : {left_bracket, empty}
-Follow: {comma, semicolon}
+25. <comparison op>
+FIRST - {==, !=, >, >=, <, <=}
+FOLLOW - {ID, NUMBER, minus_sign, left_parenthesis}
 
-26. <block statements>
-First : {left_brace}
-Follow: {if, while}
+26. <while statement>
+FIRST - {while}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
-27. <block statements left factor>
-First : {right_brace, ID, if, while, return, break, continue, read, write, print}
-Follow: {if, while}
+27. <return statement>
+FIRST - {return}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
-28. <statements>
-First : {ID, if, while, return, break, continue, read, write, print}
-Follow: {right_brace}
+28. <break statement>
+FIRST - {break}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
-29. <statements left factor>
-First : {ID, if, while, return, break, continue, read, write, print, empty}
-Follow: {right_brace}
+29. <continue statement>
+FIRST - {continue}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
-30. <statement>
-First : {ID, if, while, return, break, continue, read, write, print}
-Follow : {ID, if, while, return, break, continue, read, write, print, right_brace}
+30. <expression>
+FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {right_bracket, right_parenthesis, semicolon, ==, !=, >, >=, <, <=, comma, double_and_sign, double_or_sign}
 
-31. <statement left factor>
-First : {equal_sign, left_bracket, left_paranthesis}
-Follow: {ID, if, while, return, break, continue, read, write, print, right_brace}
+31. <expression prime>
+FIRST - {empty, plus_sign, minus_sign}
+FOLLOW - {right_bracket, right_parenthesis, semicolon, ==, !=, >, >=, <, <=, comma, double_and_sign, double_or_sign}
 
-32. <assignment>
-First : {ID}
-Follow : {}
+32. <addop>
+FIRST - {plus_sign, minus_sign}
+FOLLOW - {ID, NUMBER, minus_sign, left_parenthesis}
 
-33. <assignment left factor>
-First : {equal_sign, left_bracket}
-Follow : {ID, if, while, return, break, continue, read, write, print, right_brace}
+33. <term>
+FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {plus_sign, minus_sign, right_bracket, right_parenthesis, semicolon, ==, !=, >, >=, <, <=, comma, double_and_sign, double_or_sign}
 
-34. <func call>
-First : {ID}
-Follow : {}
+34. <term prime>
+FIRST - {empty, star_sign, forward_slash}
+FOLLOW - {plus_sign, minus_sign, right_bracket, right_parenthesis, semicolon, ==, !=, >, >=, <, <=, comma, double_and_sign, double_or_sign}
 
-35. <func call left factor one>
-First : {left_paranthesis}
-Follow : {ID, if, while, return, break, continue, read, write, print, right_brace}
+35. <mulop>
+FIRST - {star_sign, forward_slash}
+FOLLOW - {ID, NUMBER, minus_sign, left_parenthesis}
 
-36. <func call left factor two>
-First : {right_paranthesis, ID, NUMBER, minus_sign, left_paranthesis}
-Follow : {ID, if, while, return, break, continue, read, write, print, right_brace}
-
-37. <non-empty expr list>
-First : {ID, NUMBER, minus_sign, left_paranthesis}
-Follow : {right_paranthesis}
-
-38. <non-empty expr list prime>
-First : {comma, empty}
-Follow : {right_paranthesis}
-
-39. <if statement>
-First : {if}
-Follow: {ID, if, while, return, break, continue, read, write, print, right_brace}
-
-40. <condition expression>
-First : {ID, NUMBER, minus_sign, left_paranthesis}
-Follow : {right_paranthesis}
-
-41. <condition expression left factor>
-First : {double_and_sign, double_or_sign, empty}
-Follow : {right_paranthesis}
-
-42. <condition op>
-First : {double_and_sign, double_or_sign}
-Follow : {ID, NUMBER, minus_sign, left_paranthesis}
-
-43. <condition>
-First : {ID, NUMBER, minus_sign, left_paranthesis}
-Follow : {double_and_sign, double_or_sign, right_paranthesis}
-
-44. <comparison op>
-First : {==, !=, >, >=, <, <=}
-Follow : {ID, NUMBER, minus_sign, left_paranthesis}
-
-45. <while statement>
-First : {while}
-Follow : {ID, if, while, return, break, continue, read, write, print, right_brace}
-
-46. <return statement>
-First : {return}
-Follow : {ID, if, while, return, break, continue, read, write, print, right_brace}
-
-47. <return statement left factor>
-First : {ID, NUMBER, minus_sign, left_paranthesis}
-Follow : {ID, if, while, return, break, continue, read, write, print, right_brace}
-
-48. <break statement>
-First : {break}
-Follow : {ID, if, while, return, break, continue, read, write, print, right_brace}
-
-49. <continue statement>
-First : {continue}
-Follow : {ID, if, while, return, break, continue, read, write, print, right_brace}
-
-50. <expression>
-First : {ID, NUMBER, minus_sign, left_paranthesis}
-Follow : {right_bracket, right_paranthesis,  semicolon, comma, ==, != , >, >=, < ,<=, double_and_sign, double_or_sign}
-
-
+36. <factor>
+FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {star_sign, forward_slash, plus_sign, minus_sign, right_bracket, right_parenthesis, semicolon, ==, !=, >, >=, <, <=, comma, double_and_sign, double_or_sign}

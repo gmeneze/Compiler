@@ -17,14 +17,18 @@
                   | void 
                   | <non-empty list> 
 
-<non-empty list> --> <type name> ID 
-                  | <non-empty list> comma <type name> ID 
+<non-empty list> --> <type name> ID <non-empty list prime>
+
+<non-empty list prime> --> empty
+                         | comma <type name> ID <non-empty list prime>
 
 <data decls> --> empty 
                | <type name> <id list> semicolon <data decls> 
 
-<id list> --> <id> 
-           | <id list> comma <id> 
+<id list> --> <id> <id list prime> 
+
+<id list prime> --> empty
+                  | comma <id> <id list prime>
 
 <id> --> ID 
       | ID left_bracket <expression> right_bracket
@@ -52,8 +56,10 @@
 <expr list> --> empty 
               | <non-empty expr list> 
 
-<non-empty expr list> --> <expression> 
-              | <non-empty expr list> comma <expression>
+<non-empty expr list> --> <expression> <non-empty expr list prime>
+
+<non-empty expr list prime> --> empty
+                              | comma <expression> <non-empty expr list prime>
 
 <if statement> --> if left_parenthesis <condition expression> right_parenthesis <block statements> 
 
@@ -81,14 +87,18 @@
 
 <continue statement> ---> continue semicolon
 
-<expression> --> <term> 
-               | <expression> <addop> <term> 
+<expression> --> <term> <expression prime>
+
+<expression prime> --> empty
+                     | <addop> <term> 
 
 <addop> --> plus_sign 
           | minus_sign
 
-<term> --> <factor> 
-         | <term> <mulop> <factor>
+<term> --> <factor> <term prime>
+
+<term prime> --> empty
+               | <mulop> <factor> <term prime>
 
 <mulop> --> star_sign 
           | forward_slash 
