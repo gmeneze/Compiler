@@ -1,0 +1,170 @@
+FIRST and FOLLOW SETS
+----------------------
+
+1. <program>
+FIRST - {empty, int, void, binary, decimal}
+FOLLOW - {eof}
+
+2. <program-z1>
+FIRST - {ID}
+FOLLOW - {eof}
+	
+3. <program-z2>
+FIRST - {empty, left_paranthesis, left_bracket, comma, semicolon}
+FOLLOW - {eof}
+
+2. <func list>
+FIRST - {empty, int, void, binary, decimal}
+FOLLOW - {eof}
+
+3. <func>
+FIRST - {int, void, binary, decimal}
+FOLLOW - {int, void, binary, decimal, eof}
+
+4. <func decl>
+FIRST - {int, void, binary, decimal}
+FOLLOW - {semicolon, left_brace}
+
+5. <type name>
+FIRST - {int, void, binary, decimal}
+FOLLOW - {ID}
+
+6. <parameter list>
+FIRST - {empty, int, void, binary, decimal}
+FOLLOW - {right parenthesis}
+
+7. <parameter list-z1>
+FIRST - {empty, ID}
+FOLLOW - {right parenthesis}
+
+7. <non-empty list>
+FIRST - {int, void, binary, decimal}
+FOLLOW - {}
+
+8. <non-empty list prime>
+FIRST - {empty, comma}
+FOLLOW - {right parenthesis}
+
+9. <data decls>  
+FIRST - {int, void, binary, decimal}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
+
+10. <data decls-z1>
+FIRST - {ID}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
+
+11. <data decls-z2>
+FIRST - {semicolon}
+FOLLOW - {int, void, binary, decimal, eof, right_brace, ID, if, while, return, break, continue, read, write, print}
+
+12. <data decls-z3>
+FIRST - {empty, int, void, binary, decimal}
+FOLLOW - {int, void, binary, decimal, eof, right_brace, ID, if, while, return, break, continue, read, write, print}
+
+10. <id list>
+FIRST - {ID}
+FOLLOW - {semicolon}
+
+11. <id list prime>
+FIRST - {empty, comma}
+FOLLOW - {semicolon}
+
+12. <id> 
+FIRST - {ID}
+FOLLOW - {semicolon,comma, equal_sign}
+
+13. <block statements>
+FIRST - {left_brace}
+FOLLOW - {FOLLOW(if statement) U FOLLOW(while statement)}
+
+14. <statements>
+FIRST - {empty, ID, if, while, return, break, continue, read, write, print}
+FOLLOW - {right_brace}
+
+15. <statement>
+FIRST - {ID, if, while, return, break, continue, read, write, print}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
+
+16. <assignment>
+FIRST - {ID}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
+
+17. <func call>
+FIRST - {ID}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
+
+18. <expr list>
+FIRST - {empty, ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {right_parenthesis}
+
+19. <non-empty expr list>
+FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {right_parenthesis}
+
+20. <non-empty expr list prime>
+FIRST - {empty, comma}
+FOLLOW - {right_parenthesis}
+
+21. <if statement>
+FIRST - {if}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
+
+22. <condition expression>
+FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {right_parenthesis}
+
+23. <condition op>
+FIRST - {double_and_sign, double_or_sign}
+FOLLOW - {ID, NUMBER, minus_sign, left_parenthesis}
+
+24. <condition>
+FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {right_parenthesis, double_and_sign, double_or_sign}
+
+25. <comparison op>
+FIRST - {==, !=, >, >=, <, <=}
+FOLLOW - {ID, NUMBER, minus_sign, left_parenthesis}
+
+26. <while statement>
+FIRST - {while}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
+
+27. <return statement>
+FIRST - {return}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
+
+28. <break statement>
+FIRST - {break}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
+
+29. <continue statement>
+FIRST - {continue}
+FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
+
+30. <expression>
+FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {right_bracket, right_parenthesis, semicolon, ==, !=, >, >=, <, <=, comma, double_and_sign, double_or_sign}
+
+31. <expression prime>
+FIRST - {empty, plus_sign, minus_sign}
+FOLLOW - {right_bracket, right_parenthesis, semicolon, ==, !=, >, >=, <, <=, comma, double_and_sign, double_or_sign}
+
+32. <addop>
+FIRST - {plus_sign, minus_sign}
+FOLLOW - {ID, NUMBER, minus_sign, left_parenthesis}
+
+33. <term>
+FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {plus_sign, minus_sign, right_bracket, right_parenthesis, semicolon, ==, !=, >, >=, <, <=, comma, double_and_sign, double_or_sign}
+
+34. <term prime>
+FIRST - {empty, star_sign, forward_slash}
+FOLLOW - {plus_sign, minus_sign, right_bracket, right_parenthesis, semicolon, ==, !=, >, >=, <, <=, comma, double_and_sign, double_or_sign}
+
+35. <mulop>
+FIRST - {star_sign, forward_slash}
+FOLLOW - {ID, NUMBER, minus_sign, left_parenthesis}
+
+36. <factor>
+FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
+FOLLOW - {star_sign, forward_slash, plus_sign, minus_sign, right_bracket, right_parenthesis, semicolon, ==, !=, >, >=, <, <=, comma, double_and_sign, double_or_sign}
