@@ -1,12 +1,22 @@
-<program> --> <data decls> <func list> 
+<program> --> empty
+            | <type name> ID <program z> 
+
+<program z> --> <data decls new>
+              | <func list new>
 
 <func list> --> empty 
               | <func> <func list> 
 
-<func> --> <func decl> semicolon 
-         | <func decl> left_brace <data decls> <statements> right_brace 
+<func list new> -->  <func decl new> <func z> <func list> 
+
+<func> --> <func decl> <func z> 
+
+<func z> --> semicolon
+           | left_brace <data decls> <statements> right_brace 
 
 <func decl> --> <type name> ID left_parenthesis <parameter list> right_parenthesis 
+
+<func decl new> --> left_parenthesis <parameter list> right_parenthesis
 
 <type name> --> int 
               | void 
@@ -14,8 +24,13 @@
               | decimal 
 
 <parameter list> --> empty 
-                   | void 
-                   | <non-empty list> 
+                   | void <parameter list z>
+                   | int ID <non-empty list prime> 
+                   | binary ID <non-empty list prime> 
+                   | decimal ID <non-empty list prime> 
+
+<parameter list z> --> empty
+                     | ID <non-empty list prime> 
 
 <non-empty list> --> <type name> ID <non-empty list prime>
 
@@ -25,21 +40,30 @@
 <data decls> --> empty 
                | <type name> <id list> semicolon <data decls> 
 
+<data decls new> --> <id z> <id list prime> semicolon <data or func decl>
+
+<data or func decl> --> <type name> ID <data or func decl z> 
+                      | empty
+
+<data or func decl z> --> <data decls new>
+                        | <func list new>
+
 <id list> --> <id> <id list prime>
 
 <id list prime> --> empty
                   | comma <id> <id list prime>
 
-<id> --> ID 
-       | ID left_bracket <expression> right_bracket
+<id> --> ID <id z>
+
+<id z> --> empty
+         | left_bracket <expression> right_bracket
 
 <block statements> --> left_brace <statements> right_brace 
 
 <statements> --> empty 
                | <statement> <statements> 
 
-<statement> --> <assignment> 
-              | <func call> 
+<statement> --> ID <statement z>
               | <if statement> 
               | <while statement> 
               | <return statement> 
@@ -48,6 +72,9 @@
               | read left_parenthesis ID right_parenthesis semicolon 
               | write left_parenthesis <expression> right_parenthesis semicolon 
               | print left_parenthesis STRING right_parenthesis semicolon 
+
+<statement z> --> <id z> equal_sign <expression> semicolon 
+                | left_parenthesis <expr list> right_parenthesis semicolon
 
 <assignment> --> <id> equal_sign <expression> semicolon 
 
@@ -63,8 +90,10 @@
 
 <if statement> --> if left_parenthesis <condition expression> right_parenthesis <block statements> 
 
-<condition expression> -->  <condition> 
-                         | <condition> <condition op> <condition> 
+<condition expression> -->  <condition> <condition expression z>
+
+<condition expression z> --> empty
+                           | <condition op> <condition> 
 
 <condition op> --> double_and_sign 
                  | double_or_sign 
@@ -80,8 +109,10 @@
 
 <while statement> --> while left_parenthesis <condition expression> right_parenthesis <block statements> 
 
-<return statement> --> return <expression> semicolon 
-                     | return semicolon 
+<return statement> --> return <return statement z>
+
+<return statement z> --> <expression> semicolon
+                       | semicolon 
 
 <break statement> ---> break semicolon 
 
@@ -103,9 +134,11 @@
 <mulop> --> star_sign 
           | forward_slash 
 
-<factor> --> ID 
-           | ID left_bracket <expression> right_bracket 
-           | ID left_parenthesis <expr list> right_parenthesis 
+<factor> --> ID <factor z>
            | NUMBER 
            | minus_sign NUMBER 
            | left_parenthesis <expression> right_parenthesis
+
+<factor z> --> empty
+             | left_bracket <expression> right_bracket 
+             | left_parenthesis <expr list> right_parenthesis 
