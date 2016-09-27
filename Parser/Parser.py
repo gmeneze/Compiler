@@ -18,6 +18,9 @@ sys.dont_write_bytecode=True
 class Parser(object):
     def __init__(self, filename):
         self.scanner = Scanner(filename)
+        self.variable_count = 0
+        self.function_count = 0
+        self.statement_count = 0
 
     def program(self):
         print("<program> called with input : <%s> " % (self.scanner.token_lookahead(1)))
@@ -31,6 +34,7 @@ class Parser(object):
                 if self.program_z():
                     # check if parsing has been completed
                     if self.scanner.get_next_token()['value'] == '': 
+                        print("<program> : return True")
                         return True
                     else:
                         print("Parsing not completed, error in file") 
@@ -50,12 +54,14 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1) 
         if lookahead['value'] in ['[', ';',',']:
             if self.data_decls_new():
+                print("<program_z> : return True")
                 return True
             else:
                 print("Error in Parser : Non-terminal: <program_z> : Error from <data_decls_new>")
                 return False                 
         elif lookahead['value'] == '(':
             if self.func_list_new():
+                print("<program_z> : return True")
                 return True
             else:
                 print("Error in Parser : Non-terminal: <program_z> : Error from <func_list_new>")
@@ -70,6 +76,7 @@ class Parser(object):
         if lookahead['value'] in ['int', 'void', 'binary', 'decimal']:
             if self.func():
                 if self.func_list():
+                    print("<func_list> : return True")
                     return True
                 else:
                     print("Error in Parser : Non-terminal: <func_list> : Error from <func_list>")
@@ -78,6 +85,7 @@ class Parser(object):
                 print("Error in Parser : Non-terminal: <func_list> : Error from <func>")
                 return False
         else:
+            print("<func_list> : return True")
             return True
 
     def func_list_new(self):
@@ -87,6 +95,7 @@ class Parser(object):
             if self.func_decl_new():
                 if self.func_z():
                     if self.func_list():
+                        print("<func_list_new> : return True")
                         return True
                     else:
                         print("Error in Parser : Non-terminal: <func_list_new> : Error from <func_list>")
@@ -107,6 +116,7 @@ class Parser(object):
         if lookahead['value'] in ['int', 'void', 'binary', 'decimal']:
             if self.func_decl():
                 if self.func_z():
+                    print("<func> : return True")
                     return True
                 else:
                     print("Error in Parser : Non-terminal: <func> : Error from <func_z>")
@@ -123,15 +133,20 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1) 
         if lookahead['value'] == ';':
             self.scanner.get_next_token()
+            print("<func_z> : return True")
             return True
         elif lookahead['value'] == '{':
             self.scanner.get_next_token()
             if self.data_decls():
+                print("glen 1 <func_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
                 if self.statements():
+                    print("glen 2 <func_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
                     if self.scanner.get_next_token()['value'] == '}':
+                        self.function_count = self.function_count + 1
+                        print("<func_z> : return True")
                         return True
                     else:
-                        print("Error in Parser: Non-terminal: <func_z> : Invalid token")
+                        print("1 Error in Parser: Non-terminal: <func_z> : Invalid token")
                         return False                         
                 else:
                     print("Error in Parser: Non-terminal: <func_z> : Error from <statements>")
@@ -140,7 +155,7 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <func_z> : Error from <data_decls>")
                 return False  
         else:
-            print("Error in Parser: Non-terminal: <func_z> : Invalid token")
+            print("2 Error in Parser: Non-terminal: <func_z> : Invalid token")
             return False   
 
     def func_decl(self):
@@ -152,6 +167,7 @@ class Parser(object):
                 if self.scanner.get_next_token()['value'] == '(':
                     if self.parameter_list():
                         if self.scanner.get_next_token()['value'] == ')':
+                            print("<func_decl> : return True")
                             return True
                         else:
                             print("Error in Parser: Non-terminal: <func_decl> : Invalid token")
@@ -177,6 +193,7 @@ class Parser(object):
             self.scanner.get_next_token()
             if self.parameter_list():
                 if self.scanner.get_next_token()['value'] == ')':
+                    print("<func_decl_new> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <func_decl_new> : Invalid token")
@@ -194,6 +211,7 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['int', 'void', 'binary', 'decimal']:
             self.scanner.get_next_token()
+            return True
         else:
             print("Error in Parser: Non-terminal: <type_name> : Invalid token")
             return False 
@@ -204,6 +222,7 @@ class Parser(object):
         if lookahead['value'] == 'void':
             self.scanner.get_next_token()
             if self.parameter_list_z():
+                print("<parameter_list> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <parameter_list> : Error from <non_empty_list_prime>")
@@ -212,6 +231,7 @@ class Parser(object):
             self.scanner.get_next_token()
             if self.scanner.get_next_token()['type'] == TOKEN_TYPES.IDENTIFIER:
                 if self.non_empty_list_prime():
+                    print("<parameter_list> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <parameter_list> : Error from <non_empty_list_prime>")
@@ -223,6 +243,7 @@ class Parser(object):
             self.scanner.get_next_token()
             if self.scanner.get_next_token()['type'] == TOKEN_TYPES.IDENTIFIER:
                 if self.non_empty_list_prime():
+                    print("<parameter_list> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <parameter_list> : Error from <non_empty_list_prime>")
@@ -234,6 +255,7 @@ class Parser(object):
             self.scanner.get_next_token()
             if self.scanner.get_next_token()['type'] == TOKEN_TYPES.IDENTIFIER:
                 if self.non_empty_list_prime():
+                    print("<parameter_list> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <parameter_list> : Error from <non_empty_list_prime>")
@@ -242,6 +264,7 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <parameter_list> : Error from <non_empty_list_prime>")
                 return False 
         else:
+            print("<parameter_list> : return True")
             return True   
 
 
@@ -252,20 +275,23 @@ class Parser(object):
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER:
             self.scanner.get_next_token()
             if self.non_empty_list_prime():
+                print("<parameter_list_z> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <parameter_list_z> : Error from <non_empty_list_prime>")
                 return False   
         else:
+            print("<parameter_list_z> : return True")
             return True  
 
     def non_empty_list(self):
         print("<non_empty_list> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
-        if lookahead['type'] in ['int', 'void', 'binary', 'void']:
+        if lookahead['value'] in ['int', 'void', 'binary', 'void']:
             self.scanner.get_next_token()
             if self.scanner.get_next_token()['type'] == TOKEN_TYPES.IDENTIFIER:
                 if self.non_empty_list_prime():
+                    print("<non_empty_list> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <non_empty_list> : Error from <non_empty_list_prime>")
@@ -284,6 +310,7 @@ class Parser(object):
             self.scanner.get_next_token()
             if self.scanner.get_next_token()['type'] ==  TOKEN_TYPES.IDENTIFIER:
                 if self.non_empty_list_prime():
+                    print("<non_empty_list_prime> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <non_empty_list_prime> : Error from <non_empty_list_prime>")
@@ -292,6 +319,7 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <non_empty_list_prime> : Invalid token")
                 return False                                                               
         else:
+            print("<non_empty_list_prime> : return True")
             return True   
 
 
@@ -302,8 +330,10 @@ class Parser(object):
             self.scanner.get_next_token()
             if self.id_list():
                 if self.scanner.get_next_token()['value'] == ';':
-                    self.scanner.get_next_token()
+                    self.variable_count = self.variable_count + 1
+                    #self.scanner.get_next_token()
                     if self.data_decls():
+                        print("<data_decls> : return True")
                         return True
                     else:
                         print("Error in Parser: Non-terminal: <data_decls> : Error from <data_decls>")
@@ -315,6 +345,7 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <data_decls> : Error from <id_list>")
                 return False                                                               
         else:
+            print("<data_decls> : return True")
             return True 
 
 
@@ -325,7 +356,9 @@ class Parser(object):
             if self.id_z():
                 if self.id_list_prime():
                     if self.scanner.get_next_token()['value'] == ';':
+                        self.variable_count = self.variable_count + 1
                         if self.data_or_func_decl():
+                            print("<data_decls_new> : return True")
                             return True
                         else:
                             print("Error in Parser: Non-terminal: <data_decls_new> : Error from <data_or_func_decl>")
@@ -350,7 +383,8 @@ class Parser(object):
             self.scanner.get_next_token()
             if self.scanner.get_next_token()['type'] == TOKEN_TYPES.IDENTIFIER:
                 if self.data_or_func_decl_z():
-                   return True
+                    print("<data_or_func_decl> : return True")
+                    return True
                 else:
                     print("Error in Parser: Non-terminal: <data_or_func_decl> : Error from <data_or_func_z>")
                     return False  
@@ -358,6 +392,7 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <data_or_func_decl> : Invalid token")
                 return False 
         else:
+            print("<data_or_func_decl> : return True")
             return True
 
 
@@ -366,12 +401,14 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['[', ';', ',']:
             if self.data_decls_new():
+                print("<data_or_func_decl_z> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <data_or_func_decl_z> : Error from <data_decls_new>")
                 return False                
         elif lookahead['value'] == '(':
             if self.func_list_new():
+                print("<data_or_func_decl_z> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <data_or_func_decl_z> : Error from <func_list_new>")
@@ -388,6 +425,7 @@ class Parser(object):
         if lookahead['type'] ==  TOKEN_TYPES.IDENTIFIER:
             if self.id():
                 if self.id_list_prime():
+                    print("<id_list> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <id_list> : Error from <id_list_prime>")
@@ -404,21 +442,25 @@ class Parser(object):
         print("<id_list_prime> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == ',':
+            self.variable_count = self.variable_count + 1
             self.scanner.get_next_token()
             if self.id():
+                print("<id_list_prime> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <id_list_prime> : Error from <id_list_prime>")
                 return False 
         else:
+            print("<id_list_prime> : return True")
             return True               
 
     def id(self):
         print("<id> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
-        if lookahead['value'] == TOKEN_TYPES.IDENTIFIER:
+        if lookahead['type'] == TOKEN_TYPES.IDENTIFIER:
             self.scanner.get_next_token()
             if self.id_z():       
+                print("<id> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <id> : Error from <id_z>")
@@ -435,6 +477,7 @@ class Parser(object):
             self.scanner.get_next_token()
             if self.expression():
                 if self.scanner.get_next_token()['value'] == ']': 
+                    print("<id_z> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <id_z> : Invalid Token")
@@ -443,6 +486,7 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <id_z> : Error from <expression>")
                 return False      
         else:
+            print("<id_z> : return True")
             return True
 
 
@@ -452,7 +496,9 @@ class Parser(object):
         if lookahead['value'] == '{':
             self.scanner.get_next_token()
             if self.statements():
+                print("matching closing brace")
                 if self.scanner.get_next_token()['value'] == '}':
+                    print("<block_statements> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <block_statements> : Invalid Token")
@@ -469,7 +515,11 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)  
         if lookahead['type']  == TOKEN_TYPES.IDENTIFIER or  lookahead['value'] in ['if', 'while', 'return', 'break', 'continue', 'read', 'write', 'print']:
             if self.statement():
-                if self.statements():     
+                print("after statement <statements> called with input : <%s> " % (self.scanner.token_lookahead(1)))
+                print("after statement <statements> called with input : <%s> " % (self.scanner.token_lookahead(1)))
+                if self.statements():
+                    print("<statements> called with input : <%s> " % (self.scanner.token_lookahead(1)))
+                    print("<statements> : return True")     
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <statements> : Error from <statements>")
@@ -478,6 +528,7 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <statements> : Error from <statement>")
                 return False  
         else:
+            print("<statements> : return True")  
             return True                
 
     def statement(self):
@@ -486,46 +537,60 @@ class Parser(object):
         if lookahead['type']  == TOKEN_TYPES.IDENTIFIER:
             self.scanner.get_next_token()
             if self.statement_z():
+                self.statement_count = self.statement_count + 1
+                print("<statement> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <statement> : Error from <statement_z>")
                 return False                 
         elif lookahead['value']  == 'if':
             if self.if_statement():
+                self.statement_count = self.statement_count + 1
+                print("<statement> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <statement> : Error from <if_statement>")
                 return False
         elif lookahead['value']  == 'while':
             if self.while_statement():
+                self.statement_count = self.statement_count + 1
+                print("<statement> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <statement> : Error from <while_statement>")
                 return False
         elif lookahead['value']  == 'return':
             if self.return_statement():
+                self.statement_count = self.statement_count + 1
+                print("<statement> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <statement> : Error from <return_statement>")
                 return False
         elif lookahead['value']  == 'break':
             if self.break_statement():
+                self.statement_count = self.statement_count + 1
+                print("<statement> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <statement> : Error from <break_statement>")
                 return False
         elif lookahead['value']  == 'continue':
             if self.continue_statement():
+                self.statement_count = self.statement_count + 1
+                print("<statement> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <statement> : Error from <continue_statement>")
                 return False
         elif lookahead['value']  == 'read':
             self.scanner.get_next_token()
-            if self.scanner.get_next_token() == '(':
+            if self.scanner.get_next_token()['value'] == '(':
                 if self.scanner.get_next_token()['type'] == TOKEN_TYPES.IDENTIFIER:
                     if self.scanner.get_next_token()['value'] == ')':
                         if self.scanner.get_next_token()['value'] == ';':
+                            self.statement_count = self.statement_count + 1
+                            print("<statement> : return True")
                             return True
                         else:
                             print("Error in Parser: Non-terminal: <statement> : Invalid Token")
@@ -545,6 +610,8 @@ class Parser(object):
                 if self.expression():
                     if self.scanner.get_next_token()['value'] == ')':
                         if self.scanner.get_next_token()['value'] == ';':
+                            self.statement_count = self.statement_count + 1
+                            print("<statement> : return True")
                             return True
                         else:
                             print("Error in Parser: Non-terminal: <statement> : Invalid Token")
@@ -564,6 +631,8 @@ class Parser(object):
                 if self.scanner.get_next_token()['type'] == TOKEN_TYPES.STRING:
                     if self.scanner.get_next_token()['value'] == ')':
                         if self.scanner.get_next_token()['value'] == ';':
+                            self.statement_count = self.statement_count + 1
+                            print("<statement> : return True")
                             return True
                         else:
                             print("Error in Parser: Non-terminal: <statement> : Invalid Token")
@@ -587,10 +656,11 @@ class Parser(object):
         print("<statement_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['[', '=']:
-            if id_z(self):
+            if self.id_z():
                 if self.scanner.get_next_token()['value'] == '=':
                     if self.expression():
-                        if self.scanner.get_next_token() == ';':
+                        if self.scanner.get_next_token()['value'] == ';':
+                            print("<statement_z> : return True")
                             return True
                         else:
                             print("Error in Parser: Non-terminal: <statement_z> : Invalid Token")
@@ -608,8 +678,9 @@ class Parser(object):
         elif lookahead['value'] == '(':
             self.scanner.get_next_token()
             if self.expr_list():
-                if self.scanner.get_next_token() == ')':
-                    if self.scanner.get_next_token() == ';':
+                if self.scanner.get_next_token()['value'] == ')':
+                    if self.scanner.get_next_token()['value'] == ';':
+                        print("<statement_z> : return True")
                         return True
                     else:
                         print("Error in Parser: Non-terminal: <statement_z> : Invalid Token")
@@ -631,9 +702,10 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER:
             if self.id():
-                if self.scanner.get_next_token() == '=':
+                if self.scanner.get_next_token()['value'] == '=':
                     if self.expression():
-                        if self.scanner.get_next_token() == ';':
+                        if self.scanner.get_next_token()['value'] == ';':
+                            print("<assignment> : return True")
                             return True
                         else:
                             print("Error in Parser: Non-terminal: <assignment> : Invalid Token")
@@ -658,10 +730,11 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)                   
         if  lookahead['type'] == TOKEN_TYPES.IDENTIFIER:
             self.scanner.get_next_token()
-            if self.scanner.get_next_token() == '(':
+            if self.scanner.get_next_token()['value'] == '(':
                 if self.expr_list():
-                    if self.scanner.get_next_token() == ')':
-                        if self.scanner.get_next_token() == ';':
+                    if self.scanner.get_next_token()['value'] == ')':
+                        if self.scanner.get_next_token()['value'] == ';':
+                            print("<func_call> : return True")
                             return True
                         else:
                             print("Error in Parser: Non-terminal: <func_call> : Invalid Token")
@@ -686,13 +759,14 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)   
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER or lookahead['type'] == TOKEN_TYPES.NUMBER or  lookahead['value'] in ['-', '(']:
             if self.non_empty_expr_list():
+                print("<expr_list> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <expr_list> : Error from <non_empty_expr_list>")
                 return False                
         else:
-            print("Error in Parser: Non-terminal: <expr_list> : Invalid Token")
-            return False            
+            print("<expr_list> : return True")
+            return True            
 
 
 
@@ -702,6 +776,7 @@ class Parser(object):
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER or lookahead['type'] == TOKEN_TYPES.NUMBER or  lookahead['value'] in ['-', '(']:
             if self.expression():
                 if self.non_empty_expr_list_prime():
+                    print("<non_empty_expr_list> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <non_empty_expr_list> : Error from <non_empty_expr_list_prime>")
@@ -722,6 +797,7 @@ class Parser(object):
             self.scanner.get_next_token()
             if self.expression():
                 if self.non_empty_expr_list_prime():
+                    print("<non_empty_expr_list_prime> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <non_empty_expr_list> : Error from <expression>")
@@ -730,8 +806,8 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <non_empty_expr_list> : Error from <expression>")
                 return False                  
         else:
-            print("Error in Parser: Non-terminal: <non_empty_expr_list> : Error from <expression>")
-            return False  
+            print("<non_empty_expr_list_prime> : return True")
+            return True 
 
 
 
@@ -740,10 +816,11 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'if':
             self.scanner.get_next_token()
-            if self.scanner.get_next_token() == '(':
+            if self.scanner.get_next_token()['value'] == '(':
                 if self.condition_expression():
-                    if self.scanner.get_next_token() == ')':
+                    if self.scanner.get_next_token()['value'] == ')':
                         if self.block_statements():
+                            print("<if_statement> : return True")
                             return True
                         else:
                             print("Error in Parser: Non-terminal: <if_statement> : Error from <block_statements>")
@@ -769,6 +846,7 @@ class Parser(object):
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER or lookahead['type'] == TOKEN_TYPES.NUMBER or  lookahead['value'] in ['-', '(']: 
             if self.condition():
                 if self.condition_expression_z():
+                    print("<condition_expression> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <condition_expression> : Error from <condition_expression_z>")
@@ -777,7 +855,8 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <condition_expression> : Error from <condition>")
                 return False            
         else:
-            return True    
+            print("Error in Parser: Non-terminal: <condition_expression> : Invalid Token")
+            return False     
 
 
 
@@ -787,6 +866,7 @@ class Parser(object):
         if lookahead['value'] in ['&&', '||']:
             if self.condition_op():
                 if self.condition():
+                    print("<condition_expression_z> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <condition_expression_z> : Error from <condition>")
@@ -795,8 +875,8 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <condition_expression_z> : Error from <condition_op>")
                 return False  
         else:
-            print("Error in Parser: Non-terminal: <condition_expression_z> : Invalid Token")
-            return False 
+            print("<condition_expression_z> : return True")
+            return True
 
 
 
@@ -805,9 +885,11 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == '&&':
             self.scanner.get_next_token()
+            print("<condition_op> : return True")
             return True
         if lookahead['value'] == '||':
             self.scanner.get_next_token()
+            print("<condition_op> : return True")
             return True
         else:
             print("Error in Parser: Non-terminal: <condition_op> : Invalid Token")
@@ -820,8 +902,9 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER or lookahead['type'] ==  TOKEN_TYPES.NUMBER  or lookahead['value'] in ['-', '(']:
             if self.expression():
-                if self.condition_op():
+                if self.comparison_op():
                     if self.expression():
+                        print("<condition> : return True")
                         return True
                     else:
                         print("Error in Parser: Non-terminal: <condition> : Error from <expression>")
@@ -843,6 +926,7 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['==', '!=', '>', '>=', '<', '<=']:
             self.scanner.get_next_token()
+            print("<comparison_op> : return True")
             return True
         else:
             print("Error in Parser: Non-terminal: <comparison_op> : Invalid Token")
@@ -855,10 +939,11 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'while':
             self.scanner.get_next_token()
-            if self.scanner.get_next_token() == '(':
+            if self.scanner.get_next_token()['value'] == '(':
                 if self.condition_expression():
-                    if self.scanner.get_next_token() == ')':
+                    if self.scanner.get_next_token()['value'] == ')':
                         if self.block_statements():
+                            print("<while_statement> : return True")
                             return True
                         else:
                             print("Error in Parser: Non-terminal: <while_statement> : Error from <block_statements>")
@@ -870,6 +955,7 @@ class Parser(object):
                     print("Error in Parser: Non-terminal: <while_statement> : Error from <condition_expression>")
                     return False 
             else:
+                print("<while_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
                 print("Error in Parser: Non-terminal: <while_statement> : Invalid Token")
                 return False 
         else:
@@ -883,6 +969,7 @@ class Parser(object):
         if lookahead['value'] == 'return':
             self.scanner.get_next_token()
             if self.return_statement_z():
+                print("<return_statement> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <return_statement> : Error from <return_statement_z>")
@@ -898,7 +985,8 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER or lookahead['type'] ==  TOKEN_TYPES.NUMBER  or lookahead['value'] in ['-', '(']:
             if self.expression():
-                if self.scanner.get_next_token() == ';':
+                if self.scanner.get_next_token()['value'] == ';':
+                    print("<return_statement_z> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <return_statement_z> : Invalid Token")
@@ -908,6 +996,7 @@ class Parser(object):
                 return False
         elif lookahead['value'] == ';':
             self.scanner.get_next_token()
+            print("<return_statement_z> : return True")
             return True
         else:
             print("Error in Parser: Non-terminal: <return_statement_z> : Invalid Token")
@@ -920,7 +1009,8 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'break':
             self.scanner.get_next_token()
-            if self.scanner.get_next_token() == ';':
+            if self.scanner.get_next_token()['value'] == ';':
+                print("<break_statement> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <break_statement> : Invalid Token")
@@ -936,7 +1026,8 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'continue':
             self.scanner.get_next_token()
-            if self.scanner.get_next_token() ==  ';':
+            if self.scanner.get_next_token()['value'] ==  ';':
+                print("<continue_statement> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <continue_statement> : Invalid Token")
@@ -953,6 +1044,7 @@ class Parser(object):
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER or lookahead['type'] == TOKEN_TYPES.NUMBER or lookahead['value'] in ['-', '(']:
             if self.term():
                 if self.expression_prime():
+                    print("<expression> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <expression> : Error from <expression_prime>")
@@ -973,6 +1065,7 @@ class Parser(object):
             if self.addop():
                 if self.term():
                     if self.expression_prime():
+                        print("<expression_prime> : return True")
                         return True
                     else:
                         print("Error in Parser: Non-terminal: <expression_prime> : Error from <expression_prime>")
@@ -984,6 +1077,7 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <expression_prime> : Error from <addop>")
                 return False 
         else:
+            print("<expression_prime> : return True")
             return True
 
 
@@ -993,6 +1087,7 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['+', '-']:
             self.scanner.get_next_token()
+            print("<addop> : return True")
             return True
         else:
             print("Error in Parser: Non-terminal: <addop> : Invalid Token")
@@ -1006,15 +1101,16 @@ class Parser(object):
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER or lookahead['type'] == TOKEN_TYPES.NUMBER or lookahead['value'] in ['-', '(']:
             if self.factor():
                 if self.term_prime():
+                    print("<term> : return True")
                     return True
                 else:
-                    print("Error in Parser: Non-terminal: <addop> : Invalid Token")
+                    print("Error in Parser: Non-terminal: <term> : Invalid Token")
                     return False  
             else:
-                print("Error in Parser: Non-terminal: <addop> : Invalid Token")
+                print("Error in Parser: Non-terminal: <term> : Invalid Token")
                 return False  
         else:
-            print("Error in Parser: Non-terminal: <addop> : Invalid Token")
+            print("Error in Parser: Non-terminal: <term> : Invalid Token")
             return False  
 
 
@@ -1026,6 +1122,7 @@ class Parser(object):
             if self.mulop():
                 if self.factor():
                     if self.term_prime():
+                        print("<term_prime> : return True")
                         return True
                     else:
                         print("Error in Parser: Non-terminal: <term_prime> : Error from <term_prime>")
@@ -1037,8 +1134,8 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <term_prime> : Error from <mulop>")
                 return False      
         else:
-            print("Error in Parser: Non-terminal: <term_prime> : Invalid Token")
-            return False 
+            print("<term_prime> : return True")
+            return True 
 
 
 
@@ -1047,6 +1144,7 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['*', '/']:
             self.scanner.get_next_token()
+            print("<mulop> : return True")
             return True
         else:
             print("Error in Parser: Non-terminal: <mulop> : Invalid Token")
@@ -1060,20 +1158,26 @@ class Parser(object):
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER:
             self.scanner.get_next_token()
             if self.factor_z():
+                print("<factor> : return True")
                 return True
             else:
                 print("Error in Parser: Non-terminal: <factor> : Error from <factor_z>")
                 return False                   
         elif lookahead['type'] == TOKEN_TYPES.NUMBER:
             self.scanner.get_next_token()
+            print("<factor> : return True")
+            return True
         elif lookahead['value'] == '-':
             self.scanner.get_next_token()
             if self.scanner.get_next_token()['type'] == TOKEN_TYPES.NUMBER:
+                print("<factor> : return True")
                 return True
         elif lookahead['value'] == '(':
             self.scanner.get_next_token()
             if self.expression():
-                if self.scanner.get_next_token() == ')':
+                print("after expression in <factor> : <%s> " % (self.scanner.token_lookahead(1)))
+                if self.scanner.get_next_token()['value'] == ')':
+                    print("<factor> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <factor> : Invalid Token")
@@ -1093,7 +1197,8 @@ class Parser(object):
         if lookahead['value'] == '[':
             self.scanner.get_next_token()
             if self.expression():
-                if self.scanner.get_next_token() == ']':
+                if self.scanner.get_next_token()['value'] == ']':
+                    print("<factor_z> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <factor_z> : Invalid Token")
@@ -1104,7 +1209,8 @@ class Parser(object):
         elif lookahead['value'] == '(':
             self.scanner.get_next_token()
             if self.expr_list():
-                if self.scanner.get_next_token() == ')':
+                if self.scanner.get_next_token()['value'] == ')':
+                    print("<factor_z> : return True")
                     return True
                 else:
                     print("Error in Parser: Non-terminal: <factor_z> : Invalid Token")
@@ -1113,6 +1219,7 @@ class Parser(object):
                 print("Error in Parser: Non-terminal: <factor_z> : Error from <expr_list>")
                 return False   
         else:
+            print("<factor_z> : return True")
             return True
 
 if __name__ == '__main__':
@@ -1121,7 +1228,7 @@ if __name__ == '__main__':
     filename = sys.argv[1]
     parser = Parser(filename)
     if parser.program():
-        print('success!')
+        print('pass variable %s function %s statement %s' % (parser.variable_count, parser.function_count, parser.statement_count))
 
 
 

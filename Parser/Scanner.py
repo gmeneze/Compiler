@@ -135,8 +135,11 @@ class Scanner(object):
             elif ch in ['#', '/']:
                 # Ignore meta statements in parser
                 #return Token.is_meta_statement(ch, self)
-                Token.is_meta_statement(ch, self)
-                continue
+                token = Token.is_meta_statement(ch, self)
+                if token['type'] == TOKEN_TYPES.SYMBOL:
+                    return token
+                else:
+                    continue
             else:
                 ret_val = Token.is_symbol(ch, self)
                 if not ret_val:
@@ -148,8 +151,11 @@ class Scanner(object):
     def token_lookahead(self, number):
         """ Used by LL(1) parser to look ahead by 1 """
         if self.has_more_tokens():
+            print("tell is: %s" % (self.file.tell()))
+            tell = self.file.tell()
             token = self.get_next_token()
-            self.file.seek(-len(token['value']), 1)
+            self.file.seek(tell, 0)
+            print("tell is: %s" % (self.file.tell()))
             return token
         else:
             return {'type': -1, 'value': ''}
