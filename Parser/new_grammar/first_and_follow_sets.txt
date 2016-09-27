@@ -104,7 +104,7 @@ FIRST and FOLLOW sets :-
 
 14. <data decls>
 	FIRST - {empty, int, void, binary, decimal}
-	FOLLOW - {ID, if, while, return, break, continue, read, write, print}
+	FOLLOW - {ID, if, while, return, break, continue, read, write, print, right_brace}
 
 	FIRST+(<data decls> --> empty) -->  {ID, if, while, return, break, continue, read, write, print}
 	FIRST+(<data decls> --> <type name> <id list> semicolon <data decls>) --> {int, void, binary, decimal}
@@ -175,7 +175,7 @@ FIRST and FOLLOW sets :-
 
 24. <statement>
 	FIRST - {ID, if, while, return, break, continue, read, write, print}
-	FOLLOW - {right_brace}
+	FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
 	FIRST+(<statement> --> ID <statement z>) --> {ID}
 	FIRST+(<statement> --> <if statement>) --> {if}
@@ -189,7 +189,7 @@ FIRST and FOLLOW sets :-
 
 25. <statement z>
 	FIRST - {left_bracket, left_parenthesis, equal_sign}
-	FOLLOW - {right_brace}
+	FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
 	FIRST+(<statement z> --> <id z> equal_sign <expression> semicolon) --> 	{left_bracket, equal_sign}
 	FIRST+(<statement z> --> left_parenthesis <expr list> right_parenthesis semicolon) --> {left_parenthesis}
@@ -209,14 +209,14 @@ FIRST and FOLLOW sets :-
 	FIRST+(<func call> --> ID left_parenthesis <expr list> right_parenthesis semicolon) --> {ID}
 
 28. <expr list>
-	FIRST - {empty, ID, NUMBER, minus_sign, left_parenthesiss}
+	FIRST - {empty, ID, NUMBER, minus_sign, left_parenthesis}
 	FOLLOW - {right_parenthesis}
 
 	FIRST+(<expr list> --> empty) --> {right_parenthesis}
 	FIRST+(<expr list> --> <non-empty expr list>) --> {ID, NUMBER, minus_sign, left_parenthesiss}
 
 29. <non-empty expr list>
-	FIRST - {ID, NUMBER, minus_sign, left_parenthesiss}
+	FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
 	FOLLOW - {right_parenthesis}
 
 	FIRST+(<non-empty expr list> --> <expression> <non-empty expr list prime>) --> {ID, NUMBER, minus_sign, left_parenthesis}
@@ -231,7 +231,7 @@ FIRST and FOLLOW sets :-
 
 31. <if statement>
 	FIRST - {if}
-	FOLLOW - {right_brace}
+	FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
 	FIRST+(<if statement> --> if left_parenthesis <condition expression> right_parenthesis <block statements>) --> {if}
 
@@ -278,20 +278,20 @@ FIRST and FOLLOW sets :-
 
 37. <while statement>
 	FIRST - {while}
-	FOLLOW - {right_brace}
+	FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
 	FIRST+(<while statement> --> while left_parenthesis <condition expression> right_parenthesis <block statements>) --> {while}
 
 
 38. <return statement>
 	FIRST - {return}
-	FOLLOW - {right_brace}
+	FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
 	FIRST+(<return statement> --> return <return statement z>) --> {return}
 
 39. <return statement z>
 	FIRST - {ID, NUMBER, minus_sign, left_parenthesis, semicolon}
-	FOLLOW - {right_brace}
+	FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
 	FIRST+(<return statement z> --> <expression> semicolon) --> {ID, NUMBER, minus_sign, left_parenthesis}
 	FIRST+(<return statement z> --> semicolon) --> {semicolon}
@@ -299,20 +299,20 @@ FIRST and FOLLOW sets :-
 
 40. <break statement>
 	FIRST - {break}
-	FOLLOW - {right_brace}
+	FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
 	FIRST+(<break statement> ---> break semicolon) --> {break}
 
 
 41. <continue statement>
 	FIRST - {continue}
-	FOLLOW - {right_brace}
+	FOLLOW - {right_brace, ID, if, while, return, break, continue, read, write, print}
 
 	FIRST+(<continue statement> ---> continue semicolon) --> {continue}
 
 42. <expression>
 	FIRST - {ID, NUMBER, minus_sign, left_parenthesis}
-	FOLLOW - {right_bracket, ==, !=, >, >=, <, <=, semicolon, right_parenthesis, comma, right_parenthesis, double_and_sign, double_or_sign}
+	FOLLOW - {right_bracket, ==, !=, >, >=, <, <=, semicolon, right_parenthesis, comma, double_and_sign, double_or_sign}
 
 	FIRST+(<expression> --> <term> <expression prime>) --> {ID, NUMBER, minus_sign, left_parenthesis}
 

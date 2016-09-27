@@ -124,7 +124,8 @@ class Scanner(object):
             delimiters are also considered words. """
         for ch in self.character():
             if ch in [' ', '\n', '\t']:
-                return {'type': 0, 'value':ch}  # 0 stands for delimiter
+                continue
+                #return {'type': 0, 'value':ch}  # 0 stands for delimiter
             elif ch.isalpha():
                 return Token.is_identifier_or_reserved_word(ch, self)
             elif ch.isdigit():
@@ -132,7 +133,10 @@ class Scanner(object):
             elif ch == '"':
                 return Token.is_string(ch, self)
             elif ch in ['#', '/']:
-                return Token.is_meta_statement(ch, self)
+                # Ignore meta statements in parser
+                #return Token.is_meta_statement(ch, self)
+                Token.is_meta_statement(ch, self)
+                continue
             else:
                 ret_val = Token.is_symbol(ch, self)
                 if not ret_val:
@@ -144,7 +148,9 @@ class Scanner(object):
     def token_lookahead(self, number):
         """ Used by LL(1) parser to look ahead by 1 """
         if self.has_more_tokens():
-            return self.get_next_token()
+            token = self.get_next_token()
+            self.file.seek(-len(token['value']), 1)
+            return token
         else:
             return {'type': -1, 'value': ''}
 
