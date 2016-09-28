@@ -15,6 +15,8 @@ from __future__ import division,print_function
 import sys,re,traceback,random, operator, string, time
 sys.dont_write_bytecode=True
 
+DEBUG = False
+
 def enum(**enums):
     """ creates a mock enum type in python """
     return type('Enum', (), enums)
@@ -151,11 +153,13 @@ class Scanner(object):
     def token_lookahead(self, number):
         """ Used by LL(1) parser to look ahead by 1 """
         if self.has_more_tokens():
-            print("tell is: %s" % (self.file.tell()))
+            if DEBUG:
+                print("tell is: %s" % (self.file.tell()))
             tell = self.file.tell()
             token = self.get_next_token()
             self.file.seek(tell, 0)
-            print("tell is: %s" % (self.file.tell()))
+            if DEBUG:
+                print("tell is: %s" % (self.file.tell()))
             return token
         else:
             return {'type': -1, 'value': ''}

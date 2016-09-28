@@ -1,0 +1,17 @@
+automaton.c
+pass variable 5 function 6 statement 48
+
+binrep.c
+pass variable 2 function 2 statement 21
+
+branch.c
+pass variable 2 function 1 statement 6
+
+errorString.c
+fail
+
+expression.c
+pass variable 2 function 1 statement 3
+
+fibonacci.c 
+pass variable 5 function 3 statement 17
