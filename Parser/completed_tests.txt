@@ -15,3 +15,57 @@ pass variable 2 function 1 statement 3
 
 fibonacci.c 
 pass variable 5 function 3 statement 17
+
+formulae.c
+pass variable 12 function 2 statement 31
+
+funcall.c
+pass variable 1 function 8 statement 10
+
+funcall2.c
+pass variable 1 function 5 statement 7
+
+illegal.c
+pass variable 4 function 2 statement 15
+
+loop.c
+pass variable 2 function 1 statement 6
+
+mandel.c
+pass variable 8 function 6 statement 34
+
+max.c
+pass variable 2 function 2 statement 6
+
+parameter.c
+pass variable 1 function 2 statement 5
+
+parse.c
+fail
+x==y -- is the problem
+
+parse2.c
+fail
+bar@(); -- @ is invalid
+
+polymorphism.c
+fail
+decimal a; -- decimal is an invalid data type
+
+recursion.c
+pass variable 1 function 2 statement 5
+
+sort.c
+pass variable 9 function 3 statement 127
+
+square.c
+pass variable 2 function 2 statement 6
+
+tax.c
+pass variable 24 function 2 statement 87
+
+times8.c
+pass variable 2 function 3 statement 4
+
+trivial.c
+pass variable 1 function 2 statement 3

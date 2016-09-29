@@ -382,19 +382,24 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == ',':
             self.scanner.get_next_token()
-            if self.scanner.get_next_token()['type'] ==  TOKEN_TYPES.IDENTIFIER:
-                if self.non_empty_list_prime():
-                    if DEBUG:
-                        print("<non_empty_list_prime> : return True")
-                    return True
+            if self.scanner.get_next_token()['value'] in ['int', 'void', 'binary', 'decimal']:
+                if self.scanner.get_next_token()['type'] ==  TOKEN_TYPES.IDENTIFIER:
+                    if self.non_empty_list_prime():
+                        if DEBUG:
+                            print("<non_empty_list_prime> : return True")
+                        return True
+                    else:
+                        if DEBUG:
+                            print("Error in Parser: Non-terminal: <non_empty_list_prime> : Error from <non_empty_list_prime>")
+                        return False 
                 else:
                     if DEBUG:
-                        print("Error in Parser: Non-terminal: <non_empty_list_prime> : Error from <non_empty_list_prime>")
-                    return False 
+                        print("Error in Parser: Non-terminal: <non_empty_list_prime> : Invalid token")
+                    return False  
             else:
                 if DEBUG:
                     print("Error in Parser: Non-terminal: <non_empty_list_prime> : Invalid token")
-                return False                                                               
+                return True    
         else:
             if DEBUG:
                 print("<non_empty_list_prime> : return True")
@@ -466,6 +471,8 @@ class Parser(object):
             if DEBUG:
                 print("Error in Parser: Non-terminal: <data_decls_new> : Invalid token")
             return False           
+
+
 
     def data_or_func_decl(self):
         if DEBUG:
@@ -553,13 +560,14 @@ class Parser(object):
             self.variable_count = self.variable_count + 1
             self.scanner.get_next_token()
             if self.id():
-                if DEBUG:
-                    print("<id_list_prime> : return True")
-                return True
-            else:
-                if DEBUG:
-                    print("Error in Parser: Non-terminal: <id_list_prime> : Error from <id_list_prime>")
-                return False 
+                if self.id_list_prime():
+                    if DEBUG:
+                        print("<id_list_prime> : return True")
+                    return True
+                else:
+                    if DEBUG:
+                        print("Error in Parser: Non-terminal: <id_list_prime> : Error from <id_list_prime>")
+                    return False 
         else:
             if DEBUG:
                 print("<id_list_prime> : return True")
@@ -640,7 +648,7 @@ class Parser(object):
         if DEBUG:
             print("<statements> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)  
-        if lookahead['type']  == TOKEN_TYPES.IDENTIFIER or  lookahead['value'] in ['if', 'while', 'return', 'break', 'continue', 'read', 'write', 'print']:
+        if lookahead['type'] == TOKEN_TYPES.IDENTIFIER or lookahead['value'] in ['if', 'while', 'return', 'break', 'continue', 'read', 'write', 'print']:
             if self.statement():
                 if self.statements():
                     if DEBUG:
