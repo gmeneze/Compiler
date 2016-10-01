@@ -48,7 +48,7 @@ parse2.c
 fail
 bar@(); -- @ is invalid
 
-polymorphism.c
+polymorphism.c  --- CHECK
 fail
 decimal a; -- decimal is an invalid data type
 
