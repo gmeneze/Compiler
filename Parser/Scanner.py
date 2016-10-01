@@ -15,7 +15,7 @@ from __future__ import division,print_function
 import sys,re,traceback,random, operator, string, time
 sys.dont_write_bytecode=True
 
-DEBUG = False
+DEBUG = True
 
 def enum(**enums):
     """ creates a mock enum type in python """

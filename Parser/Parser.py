@@ -410,7 +410,7 @@ class Parser(object):
         if DEBUG:
             print("<data_decls> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
-        if lookahead['value'] in ['int', 'void', 'binary', 'void']:
+        if lookahead['value'] in ['int', 'void', 'binary', 'decimal']:
             self.scanner.get_next_token()
             if self.id_list():
                 if self.scanner.get_next_token()['value'] == ';':
