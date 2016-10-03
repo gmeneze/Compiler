@@ -567,9 +567,12 @@ C. Program characteristics:
 
 1. I have implemented a recursive descent parser. Each non-terminal symbol in the grammar (see list above) has it's own method in the code, which recursively expands the corresponding rules. 
 
-2. Every non-terminal symbol's function expands based on the next token read from the scanner. If the function is able to expand the rule successfully it returns true, otherwise false.
+2. Every non-terminal symbol's function expands based on the next token read from the scanner. 
+    a. A look ahead is done to look at the next input token, if the token belongs to the first set of a production rule, then the rule is expanded.
+    b. Since each production rule of a non-terminal has a disjoint first set, the choice of rule based on one-lookahead is unique (LL(1) property).
+    c. If the function is able to expand the rule successfully it returns true, otherwise false.
 
-3. The program terminates when the starting non-terminal's function returns. The first non-terminal's function returns True if all the rules have been expanded correctly and the input file token being read is end of file (''). If it returns True, it means that the parser has completed successfully, else it means that it has failed. 
+3. The program terminates when the starting non-terminal's function returns. The first non-terminal's function returns True if all the rules have been expanded correctly and the input file token being read is end of file (''). If it returns true, it means that the parser has completed successfully, else it means that it has failed. 
 
 4. The program counts the number of global and local variables using a counter which is incremented in the non-terminals <data decls>, <data decls new> and <id list prime> whenever a variable declaration is encountered.
 
