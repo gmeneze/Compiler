@@ -2,12 +2,14 @@
 """
 parser.py (c) 2016 gmeneze@ncsu.edu, MIT licence
 Part of project for course CSC 512: Compiler Construction
-http://people.engr.ncsu.edu/xshen5/csc512_fall2016/projects/self.scanner.html
+http://people.engr.ncsu.edu/xshen5/csc512_fall2016/projects/Parser.html
 USAGE: 
-    python self.scanner.py <input_file>
+    python Parser.py <input_file>
 OUTPUT:
-    generates an output file with name obtained by appending "_gen" to the input file.
-    This generated file should contain code which produces the same output as the original input file when compiled and executed.
+    Produces an output in the format of :-
+    pass <number of variables> <number of functions> <number of statements>
+    OR
+    error
 """
 
 from __future__ import division,print_function
@@ -23,6 +25,9 @@ class Parser(object):
         self.statement_count = 0
 
     def program(self):
+        """ <program> --> empty
+                        | <type name> ID <program z> """
+
         if DEBUG: 
             print("<program> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         # '' is interpreted as eof 
@@ -56,6 +61,9 @@ class Parser(object):
             return False
 
     def program_z(self):
+        """ <program z> --> <data decls new>
+                           | <func list new> """
+
         if DEBUG:
             print("<program_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1) 
@@ -83,6 +91,9 @@ class Parser(object):
             return False                     
 
     def func_list(self):
+        """ <func list> --> empty 
+                          | <func> <func list> """
+
         if DEBUG:
             print("<func_list> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1) 
@@ -106,6 +117,8 @@ class Parser(object):
             return True
 
     def func_list_new(self):
+        """ <func list new> -->  <func decl new> <func z> <func list> """
+
         if DEBUG:
             print("<func_list_new> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1) 
@@ -134,6 +147,8 @@ class Parser(object):
             return False
 
     def func(self):
+        """ <func> --> <func decl> <func z> """
+
         if DEBUG:
             print("<func> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1) 
@@ -157,6 +172,9 @@ class Parser(object):
             return False             
 
     def func_z(self):
+        """<func z> --> semicolon
+                      | left_brace <data decls> <statements> right_brace """
+
         if DEBUG:
             print("<func_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1) 
@@ -196,6 +214,8 @@ class Parser(object):
             return False   
 
     def func_decl(self):
+        """ <func decl> --> <type name> ID left_parenthesis <parameter list> right_parenthesis """
+
         if DEBUG:
             print("<func_decl> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -231,6 +251,8 @@ class Parser(object):
 
 
     def func_decl_new(self):
+        """ <func decl new> --> left_parenthesis <parameter list> right_parenthesis """
+
         if DEBUG:
             print("<func_decl_new> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -256,6 +278,11 @@ class Parser(object):
 
 
     def type_name(self):
+        """ <type name> --> int 
+                            | void 
+                            | binary 
+                            | decimal """
+
         if DEBUG:
             print("<type_name> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -268,6 +295,12 @@ class Parser(object):
             return False 
      
     def parameter_list(self):
+        """ <parameter list> --> empty 
+                                | void <parameter list z>
+                                | int ID <non-empty list prime> 
+                                | binary ID <non-empty list prime> 
+                                | decimal ID <non-empty list prime> """
+
         if DEBUG:
             print("<parameter_list> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -334,6 +367,8 @@ class Parser(object):
 
 
     def parameter_list_z(self):
+        """ <parameter list z> --> empty
+                     | ID <non-empty list prime> """
         if DEBUG:
             print("<parameter_list_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -353,6 +388,8 @@ class Parser(object):
             return True  
 
     def non_empty_list(self):
+        """ <non-empty list> --> <type name> ID <non-empty list prime> """
+
         if DEBUG:
             print("<non_empty_list> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -377,6 +414,9 @@ class Parser(object):
             return False   
 
     def non_empty_list_prime(self):
+        """ <non-empty list prime> --> empty
+                         | comma <type name> ID <non-empty list prime> """
+
         if DEBUG:
             print("<non_empty_list_prime> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -407,6 +447,9 @@ class Parser(object):
 
 
     def data_decls(self):
+        """ <data decls> --> empty 
+               | <type name> <id list> semicolon <data decls> """
+
         if DEBUG:
             print("<data_decls> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -439,6 +482,8 @@ class Parser(object):
 
 
     def data_decls_new(self):
+        """ <data decls new> --> <id z> <id list prime> semicolon <data or func decl> """
+
         if DEBUG:
             print("<data_decls_new> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -475,6 +520,8 @@ class Parser(object):
 
 
     def data_or_func_decl(self):
+        """ <data or func decl> --> <type name> ID <data or func decl z> 
+                                    | empty """
         if DEBUG:
             print("<data_or_func_decl> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -500,6 +547,9 @@ class Parser(object):
 
 
     def data_or_func_decl_z(self):
+        """  <data or func decl z> --> <data decls new>
+                                     | <func list new> """
+
         if DEBUG:
             print("<data_or_func_decl_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -529,6 +579,8 @@ class Parser(object):
 
 
     def id_list(self):
+        """ <id list> --> <id> <id list prime> """
+
         if DEBUG:
             print("<id_list> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -553,6 +605,9 @@ class Parser(object):
                                        
 
     def id_list_prime(self):
+        """ <id list prime> --> empty
+                              | comma <id> <id list prime> """
+
         if DEBUG:
             print("<id_list_prime> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -574,6 +629,8 @@ class Parser(object):
             return True               
 
     def id(self):
+        """ <id> --> ID <id z> """
+
         if DEBUG:
             print("<id> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -594,6 +651,9 @@ class Parser(object):
 
 
     def id_z(self):
+        """ <id z> --> empty
+                    | left_bracket <expression> right_bracket """
+
         if DEBUG:
             print("<id_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -619,6 +679,8 @@ class Parser(object):
 
 
     def block_statements(self):
+        """ <block statements> --> left_brace <statements> right_brace """
+
         if DEBUG:
             print("<block_statements> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -645,6 +707,9 @@ class Parser(object):
             return False    
 
     def statements(self):
+        """ <statements> --> empty 
+                            | <statement> <statements> """
+
         if DEBUG:
             print("<statements> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)  
@@ -668,6 +733,16 @@ class Parser(object):
             return True                
 
     def statement(self):
+        """ <statement> --> ID <statement z>
+              | <if statement> 
+              | <while statement> 
+              | <return statement> 
+              | <break statement> 
+              | <continue statement> 
+              | read left_parenthesis ID right_parenthesis semicolon 
+              | write left_parenthesis <expression> right_parenthesis semicolon 
+              | print left_parenthesis STRING right_parenthesis semicolon """
+
         if DEBUG:
             print("<statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1) 
@@ -818,6 +893,9 @@ class Parser(object):
 
 
     def statement_z(self):
+        """ <statement z> --> <id z> equal_sign <expression> semicolon 
+                            | left_parenthesis <expr list> right_parenthesis semicolon """
+
         if DEBUG:
             print("<statement_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -874,6 +952,8 @@ class Parser(object):
 
 
     def assignment(self):
+        """ <assignment> --> <id> equal_sign <expression> semicolon """
+
         if DEBUG:
             print("<assignment> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -909,6 +989,8 @@ class Parser(object):
 
 
     def func_call(self):
+        """ <func call> --> ID left_parenthesis <expr list> right_parenthesis semicolon """
+
         if DEBUG:
             print("<func_call> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)                   
@@ -945,6 +1027,9 @@ class Parser(object):
 
 
     def expr_list(self):
+        """ <expr list> --> empty 
+                            | <non-empty expr list> """
+
         if DEBUG:
             print("<expr_list> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)   
@@ -965,6 +1050,8 @@ class Parser(object):
 
 
     def non_empty_expr_list(self):
+        """ <non-empty expr list> --> <expression> <non-empty expr list prime> """
+
         if DEBUG:
             print("<non_empty_expr_list> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)   
@@ -990,6 +1077,9 @@ class Parser(object):
 
 
     def non_empty_expr_list_prime(self):
+        """ <non-empty expr list prime> --> empty
+                              | comma <expression> <non-empty expr list prime> """
+
         if DEBUG:
             print("<non_empty_expr_list_prime> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1016,6 +1106,8 @@ class Parser(object):
 
 
     def if_statement(self):
+        """ <if statement> --> if left_parenthesis <condition expression> right_parenthesis <block statements> """
+
         if DEBUG:
             print("<if_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1052,6 +1144,8 @@ class Parser(object):
 
 
     def condition_expression(self):
+        """ <condition expression> -->  <condition> <condition expression z> """
+
         if DEBUG:
             print("<condition_expression> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1077,6 +1171,9 @@ class Parser(object):
 
 
     def  condition_expression_z(self):
+        """ <condition expression z> --> empty
+                           | <condition op> <condition>  """
+
         if DEBUG:
             print("<condition_expression_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1102,6 +1199,9 @@ class Parser(object):
 
 
     def  condition_op(self):
+        """ <condition op> --> double_and_sign 
+                 | double_or_sign """
+
         if DEBUG:
             print("<condition_op> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1123,6 +1223,8 @@ class Parser(object):
 
 
     def condition(self):
+        """ <condition> --> <expression> <comparison op> <expression> """
+
         if DEBUG:
             print("<condition> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1153,6 +1255,13 @@ class Parser(object):
 
 
     def comparison_op(self):
+        """ <comparison op> --> == 
+                  | != 
+                  | > 
+                  | >= 
+                  | < 
+                  | <= """
+
         if DEBUG:
             print("<comparison_op> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1169,6 +1278,8 @@ class Parser(object):
 
 
     def while_statement(self):
+        """ <while statement> --> while left_parenthesis <condition expression> right_parenthesis <block statements> """
+
         if DEBUG:
             print("<while_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1204,6 +1315,8 @@ class Parser(object):
 
 
     def return_statement(self):
+        """ <return statement> --> return <return statement z> """
+
         if DEBUG:
             print("<return_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1225,6 +1338,9 @@ class Parser(object):
 
 
     def return_statement_z(self):
+        """ <return statement z> --> <expression> semicolon 
+                                    | semicolon """
+
         if DEBUG:
             print("<return_statement_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1255,6 +1371,8 @@ class Parser(object):
 
 
     def break_statement(self):
+        """ <break statement> ---> break semicolon """
+
         if DEBUG:
             print("<break_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1276,6 +1394,8 @@ class Parser(object):
 
 
     def continue_statement(self):
+        """ <continue statement> ---> continue semicolon """
+
         if DEBUG:
             print("<continue_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1297,6 +1417,8 @@ class Parser(object):
 
 
     def expression(self):
+        """ <expression> --> <term> <expression prime> """
+
         if DEBUG:
             print("<expression> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1322,6 +1444,9 @@ class Parser(object):
 
 
     def expression_prime(self):
+        """ <expression prime> --> empty
+                     | <addop> <term> <expression prime> """
+
         if DEBUG:
             print("<expression_prime> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1352,6 +1477,9 @@ class Parser(object):
 
 
     def addop(self):
+        """ <addop> --> plus_sign 
+                     | minus_sign """
+
         if DEBUG:
             print("<addop> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1368,6 +1496,8 @@ class Parser(object):
 
 
     def term(self):
+        """ <term> --> <factor> <term prime> """
+
         if DEBUG:
             print("<term> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1393,6 +1523,9 @@ class Parser(object):
 
 
     def term_prime(self):
+        """ <term prime> --> empty
+               | <mulop> <factor> <term prime> """
+
         if DEBUG:
             print("<term_prime> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1423,6 +1556,9 @@ class Parser(object):
 
 
     def mulop(self):
+        """ <mulop> --> star_sign 
+          | forward_slash """
+
         if DEBUG:
             print("<mulop> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1439,6 +1575,11 @@ class Parser(object):
 
 
     def factor(self):
+        """ <factor> --> ID <factor z>
+           | NUMBER 
+           | minus_sign NUMBER 
+           | left_parenthesis <expression> right_parenthesis """
+
         if DEBUG:
             print("<factor> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -1488,6 +1629,10 @@ class Parser(object):
 
 
     def factor_z(self):
+        """ <factor z> --> empty
+                        | left_bracket <expression> right_bracket 
+                        | left_parenthesis <expr list> right_parenthesis """
+
         if DEBUG:
             print("<factor_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
