@@ -145,9 +145,12 @@ class Scanner(object):
             else:
                 ret_val = Token.is_symbol(ch, self)
                 if not ret_val:
+                   print("error in Scanner: Invalid token %s " %(ch))
                    return {'type': -1, 'value': ch}
                 else:
                    return ret_val
+
+        print("error in Scanner: Invalid token")
         return  {'type': -1, 'value': ''}
 
     def token_lookahead(self, number):
@@ -162,6 +165,7 @@ class Scanner(object):
                 print("tell is: %s" % (self.file.tell()))
             return token
         else:
+            print("error in Scanner: Invalid token")
             return {'type': -1, 'value': ''}
 
 
