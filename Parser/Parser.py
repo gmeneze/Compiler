@@ -1534,6 +1534,6 @@ if __name__ == '__main__':
     if parser.program():
         print('pass variable %s function %s statement %s' % (parser.variable_count, parser.function_count, parser.statement_count))
     else:
-        print('fail')
+        print('error')
 
 

@@ -81,12 +81,12 @@ class Token(object):
         for ch in scanner.character():
             str = ''.join((str, ch))    
             if ch == '\n':
-                 raise ValueError("Multiline strings are not allowed")
+                 raise ValueError("error in Scanner: Multiline strings are not allowed")
             elif ch == '"':
                 break
 
         if str[-1] != '"':
-            raise ValueError("The string <" + "> was not terminated.")
+            raise ValueError("error in Scanner: The string <" + "> was not terminated.")
 
         return {'type':TOKEN_TYPES.STRING, 'value':str}
 
@@ -145,12 +145,11 @@ class Scanner(object):
             else:
                 ret_val = Token.is_symbol(ch, self)
                 if not ret_val:
-                   print("error in Scanner: Invalid token %s " %(ch))
+                   print("error in Scanner: Invalid Token %s" %(ch))
                    return {'type': -1, 'value': ch}
                 else:
                    return ret_val
 
-        print("error in Scanner: Invalid token")
         return  {'type': -1, 'value': ''}
 
     def token_lookahead(self, number):
@@ -165,7 +164,6 @@ class Scanner(object):
                 print("tell is: %s" % (self.file.tell()))
             return token
         else:
-            print("error in Scanner: Invalid token")
             return {'type': -1, 'value': ''}
 
 
