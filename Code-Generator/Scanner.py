@@ -13,7 +13,7 @@ OUTPUT:
 
 from __future__ import division,print_function
 import sys,re,traceback,random, operator, string, time
-from Code_Generator import Queue, Local_dict, Global_dict
+from Code_Generator import Code_Generator, Token_queue, Local_dict
 sys.dont_write_bytecode=True
 
 DEBUG = False

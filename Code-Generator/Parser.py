@@ -13,15 +13,16 @@ OUTPUT:
 """
 # Parameter list of function onwards, also capture parenthesis before and after list
 
-import Queue
 from __future__ import division,print_function
+import Queue
 from Scanner import Scanner, Token, TOKEN_TYPES, DEBUG
-from Code_Generator import Token_queue, Local_dict, Global_dict
+from Code_Generator import Code_Generator, Token_queue, Local_dict
 import sys,re,traceback,random, operator, string, time
 sys.dont_write_bytecode=True
 
-Temp_queue = Queue.queue()
+Temp_queue = Queue.Queue()
 FIRST_TIME_IND = True
+DATA_DECLARATION = False
 
 class Parser(object):
     def __init__(self, filename):
@@ -43,14 +44,14 @@ class Parser(object):
             return True
         elif lookahead['value'] in ['int', 'void', 'binary', 'decimal']:
             Temp_queue.put(self.scanner.get_next_token())
-            next_token = self.scanner.get_next_token()
-            if next_token['type'] == TOKEN_TYPES.IDENTIFIER:
-                Temp_queue.put(next_token)
+            temp_token = self.scanner.get_next_token()
+            if temp_token['type'] == TOKEN_TYPES.IDENTIFIER:
+                Temp_queue.put(temp_token)
                 if self.program_z():
                     # check if parsing has been completed
-                    next_token = self.scanner.get_next_token()
-                    if next_token['value'] == '': 
-                        Token_queue.put(next_token)
+                    temp_token = self.scanner.get_next_token()
+                    if temp_token['value'] == '': 
+                        Token_queue.put(temp_token)
                         if DEBUG:
                             print("<program> : return True")
                         return True
@@ -82,7 +83,7 @@ class Parser(object):
             # This is a data declaration, so put in dictionary
             while Temp_queue.qsize() > 0:
                 temp_token = Temp_queue.get()
-                if(temp_token['type'] == TOKEN_TYPES.IDENTIFIER)
+                if temp_token['type'] == TOKEN_TYPES.IDENTIFIER:
                     self.code_generator.add_to_dict(temp_token)
 
             if self.data_decls_new():
@@ -212,10 +213,10 @@ class Parser(object):
                 if self.statements():
                     if DEBUG:
                         print("glen 2 <func_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
-                    next_token = self.scanner.get_next_token()
-                    if self.scanner.get_next_token()['value'] == '}':
-                        Token_queue.put(next_token)
-                        self.code_generator.print_code()
+                    temp_token = self.scanner.get_next_token()
+                    if temp_token['value'] == '}':
+                        Token_queue.put(temp_token)
+                        self.code_generator.print_function()
                         self.function_count = self.function_count + 1
                         if DEBUG:
                             print("<func_z> : return True")
@@ -245,16 +246,16 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['int', 'void', 'binary', 'decimal']:
             Token_queue.put(self.scanner.get_next_token())
-            next_token = self.scanner.get_next_token()
-            if next_token['type'] == TOKEN_TYPES.IDENTIFIER:
-                Token_queue.put(next_token)
-                next_token = self.scanner.get_next_token()
-                if next_token()['value'] == '(':
-                    Token_queue.put(next_token)
+            temp_token = self.scanner.get_next_token()
+            if temp_token['type'] == TOKEN_TYPES.IDENTIFIER:
+                Token_queue.put(temp_token)
+                temp_token = self.scanner.get_next_token()
+                if temp_token['value'] == '(':
+                    Token_queue.put(temp_token)
                     if self.parameter_list():
-                        next_token = self.scanner.get_next_token()
-                        if next_token['value'] == ')':
-                            Token_queue.put(next_token)
+                        temp_token = self.scanner.get_next_token()
+                        if temp_token['value'] == ')':
+                            Token_queue.put(temp_token)
                             if DEBUG:
                                 print("<func_decl> : return True")
                             return True
@@ -289,9 +290,9 @@ class Parser(object):
         if lookahead['value'] == '(':
             Token_queue.put(self.scanner.get_next_token())
             if self.parameter_list():
-                next_token = self.scanner.get_next_token()
-                if next_token['value'] == ')':
-                    Token_queue.put(next_token)
+                temp_token = self.scanner.get_next_token()
+                if temp_token['value'] == ')':
+                    Token_queue.put(temp_token)
                     if DEBUG:
                         print("<func_decl_new> : return True")
                     return True
@@ -497,7 +498,6 @@ class Parser(object):
     def data_decls(self):
         """ <data decls> --> empty 
                | <type name> <id list> semicolon <data decls> """
-
         if DEBUG:
             print("<data_decls> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
@@ -579,9 +579,9 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['int', 'void', 'binary', 'void']:
             Temp_queue.put(self.scanner.get_next_token())
-            next_token = self.scanner.get_next_token()
-            if next_token['type'] == TOKEN_TYPES.IDENTIFIER:
-                Temp_queue.put(next_token)
+            temp_token = self.scanner.get_next_token()
+            if temp_token['type'] == TOKEN_TYPES.IDENTIFIER:
+                Temp_queue.put(temp_token)
                 if self.data_or_func_decl_z():
                     if DEBUG:
                         print("<data_or_func_decl> : return True")

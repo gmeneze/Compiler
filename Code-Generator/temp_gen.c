@@ -1,0 +1,1 @@
+int local[2]int local[2]
