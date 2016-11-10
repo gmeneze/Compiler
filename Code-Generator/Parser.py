@@ -29,7 +29,7 @@ class Parser(object):
         self.variable_count = 0
         self.function_count = 0
         self.statement_count = 0
-        self.code_generator = Code_Generator()
+        self.code_generator = Code_Generator(filename)
 
     def program(self):
         """ <program> --> empty
@@ -83,7 +83,7 @@ class Parser(object):
             while Temp_queue.qsize() > 0:
                 temp_token = Temp_queue.get()
                 if(temp_token['type'] == TOKEN_TYPES.IDENTIFIER)
-                    Local_dict = Local_dict + {temp_token['value']:Local_dict.qsize()}
+                    self.code_generator.add_to_dict(temp_token)
 
             if self.data_decls_new():
                 if DEBUG:
@@ -350,7 +350,7 @@ class Parser(object):
             Token_queue.put(self.scanner.get_next_token())
             temp_token = self.scanner.get_next_token()
             if temp_token['type'] == TOKEN_TYPES.IDENTIFIER:
-                Local_dict = Local_dict + {temp_token['value']:Local_dict.qsize()}
+                self.code_generator.add_to_dict(temp_token)
                 Token_queue.put(temp_token)
                 if self.non_empty_list_prime():
                     if DEBUG:
@@ -368,7 +368,7 @@ class Parser(object):
             Token_queue.put(self.scanner.get_next_token())
             temp_token = self.scanner.get_next_token()
             if temp_token['type'] == TOKEN_TYPES.IDENTIFIER:
-                Local_dict = Local_dict + {temp_token['value']:Local_dict.qsize()}
+                self.code_generator.add_to_dict(temp_token)
                 Token_queue.put(temp_token)
                 if self.non_empty_list_prime():
                     if DEBUG:
@@ -386,7 +386,7 @@ class Parser(object):
             self.scanner.get_next_token()
             temp_token = self.scanner.get_next_token()
             if temp_token['type'] == TOKEN_TYPES.IDENTIFIER:
-                Local_dict = Local_dict + {temp_token['value']:Local_dict.qsize()}
+                self.code_generator.add_to_dict(temp_token)
                 Token_queue.put(temp_token)
                 if self.non_empty_list_prime():
                     if DEBUG:
@@ -415,7 +415,7 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER:
             temp_token = self.scanner.get_next_token()
-            Local_dict = Local_dict + {temp_token()['value'] : Local_dict.qsize()}
+            self.code_generator.add_to_dict(temp_token)
             Token_queue.put(temp_token)
             if self.non_empty_list_prime():
                 if DEBUG:
@@ -464,12 +464,14 @@ class Parser(object):
             print("<non_empty_list_prime> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == ',':
-            self.scanner.get_next_token()
-            if self.scanner.get_next_token()['value'] in ['int', 'void', 'binary', 'decimal']:
-                next_token = self.scanner.get_next_token()
-                if next_token['type'] ==  TOKEN_TYPES.IDENTIFIER:
-                    Local_dict = Local_dict + {next_token['value'] : Local_dict.qsize()}
-                    Token_queue.put(next_token)
+            Token_queue.put(self.scanner.get_next_token())
+            temp_token = self.scanner.get_next_token()
+            if temp_token['value'] in ['int', 'void', 'binary', 'decimal']:
+                Token_queue.put(temp_token)
+                temp_token = self.scanner.get_next_token()
+                if temp_token['type'] ==  TOKEN_TYPES.IDENTIFIER:
+                    self.code_generator.add_to_dict(temp_token)
+                    Token_queue.put(temp_token)
                     if self.non_empty_list_prime():
                         if DEBUG:
                             print("<non_empty_list_prime> : return True")
@@ -608,7 +610,7 @@ class Parser(object):
         if lookahead['value'] in ['[', ';', ',']:
             while Temp_queue.qsize() > 0:
                 temp_token = Temp_queue.get()
-                Local_dict = Local_dict + {temp_token['value']:Local_dict.qsize()}
+                self.code_generator.add_to_dict(temp_token)
             if self.data_decls_new():
                 if DEBUG:
                     print("<data_or_func_decl_z> : return True")
@@ -674,7 +676,8 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == ',':
             self.variable_count = self.variable_count + 1
-            self.scanner.get_next_token()
+            if not DATA_DECLARATION:
+                Token_queue.put(self.scanner.get_next_token())
             if self.id():
                 if self.id_list_prime():
                     if DEBUG:
@@ -696,7 +699,10 @@ class Parser(object):
             print("<id> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER:
-            self.scanner.get_next_token()
+            temp_token = self.scanner.get_next_token()
+            self.code_generator.add_to_dict(temp_token)
+            if not DATA_DECLARATION:  # Fix adding to dict
+                Token_queue.put(temp_token)
             if self.id_z():       
                 if DEBUG:
                     print("<id> : return True")
@@ -711,7 +717,7 @@ class Parser(object):
             return False                        
 
 
-    def id_z(self):
+    def id_z(self):  #Handling not done
         """ <id z> --> empty
                     | left_bracket <expression> right_bracket """
 
@@ -746,11 +752,13 @@ class Parser(object):
             print("<block_statements> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == '{':
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if self.statements():
                 if DEBUG:
                     print("matching closing brace")
-                if self.scanner.get_next_token()['value'] == '}':
+                temp_token = self.scanner.get_next_token()
+                if temp_token['value'] == '}':
+                    Token_queue.put(temp_token)
                     if DEBUG:
                         print("<block_statements> : return True")
                     return True
@@ -808,7 +816,7 @@ class Parser(object):
             print("<statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1) 
         if lookahead['type']  == TOKEN_TYPES.IDENTIFIER:
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if self.statement_z():
                 self.statement_count = self.statement_count + 1
                 if DEBUG:
@@ -869,11 +877,19 @@ class Parser(object):
                     print("Error in Parser: Non-terminal: <statement> : Error from <continue_statement>")
                 return False
         elif lookahead['value']  == 'read':
-            self.scanner.get_next_token()
-            if self.scanner.get_next_token()['value'] == '(':
-                if self.scanner.get_next_token()['type'] == TOKEN_TYPES.IDENTIFIER:
-                    if self.scanner.get_next_token()['value'] == ')':
-                        if self.scanner.get_next_token()['value'] == ';':
+            Token_queue.put(self.scanner.get_next_token())
+            temp_token = self.scanner.get_next_token()
+            if temp_token['value'] == '(':
+                Token_queue.put(temp_token)
+                temp_token = self.scanner.get_next_token()
+                if temp_token['type'] == TOKEN_TYPES.IDENTIFIER:
+                    Token_queue.put(temp_token)
+                    temp_token = self.scanner.get_next_token()
+                    if temp_token['value'] == ')':
+                        Token_queue.put(temp_token)
+                        temp_token = self.scanner.get_next_token()
+                        if temp_token['value'] == ';':
+                            Token_queue.put(temp_token)
                             self.statement_count = self.statement_count + 1
                             if DEBUG:
                                 print("<statement> : return True")
@@ -895,11 +911,17 @@ class Parser(object):
                     print("Error in Parser: Non-terminal: <statement> : Invalid Token")
                 return False                           
         elif lookahead['value']  == 'write':
-            self.scanner.get_next_token()
-            if self.scanner.get_next_token()['value'] == '(':
+            Token_queue.put(self.scanner.get_next_token())
+            temp_token = self.scanner.get_next_token()
+            if temp_token['value'] == '(':
+                Token_queue.put(temp_token)
                 if self.expression():
-                    if self.scanner.get_next_token()['value'] == ')':
-                        if self.scanner.get_next_token()['value'] == ';':
+                    temp_token = self.scanner.get_next_token()
+                    if temp_token['value'] == ')':
+                        Token_queue.put(temp_token)
+                        temp_token = self.scanner.get_next_token()
+                        if temp_token['value'] == ';':
+                            Token_queue.put(temp_token)
                             self.statement_count = self.statement_count + 1
                             if DEBUG:
                                 print("<statement> : return True")
@@ -921,11 +943,19 @@ class Parser(object):
                     print("Error in Parser: Non-terminal: <statement> : Invalid Token")
                 return False   
         elif lookahead['value']  == 'print':
-            self.scanner.get_next_token()
-            if self.scanner.get_next_token()['value'] == '(':
-                if self.scanner.get_next_token()['type'] == TOKEN_TYPES.STRING:
-                    if self.scanner.get_next_token()['value'] == ')':
-                        if self.scanner.get_next_token()['value'] == ';':
+            Token_queue.put(self.scanner.get_next_token())
+            temp_token = self.scanner.get_next_token()
+            if temp_token['value'] == '(':
+                Token_queue.put(Temp_token)
+                temp_token = self.scanner.get_next_token()
+                if temp_token['type'] == TOKEN_TYPES.STRING:
+                    Token_queue.put(temp_token)
+                    temp_token = self.scanner.get_next_token()
+                    if temp_token['value'] == ')':
+                        Token_queue.put(temp_token)
+                        temp_token = self.scanner.get_next_token()
+                        if temp_token['value'] == ';':
+                            Token_queue.put(temp_token)
                             self.statement_count = self.statement_count + 1
                             if DEBUG:
                                 print("<statement> : return True")
@@ -962,9 +992,13 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['[', '=']:
             if self.id_z():
-                if self.scanner.get_next_token()['value'] == '=':
+                temp_token = self.scanner.get_next_token()
+                if temp_token['value'] == '=':
+                    Token_queue.put(temp_token)
                     if self.expression():
-                        if self.scanner.get_next_token()['value'] == ';':
+                        temp_token = self.scanner.get_next_token()
+                        if temp_token['value'] == ';':
+                            Token_queue.put(temp_token)
                             if DEBUG:
                                 print("<statement_z> : return True")
                             return True
@@ -986,10 +1020,14 @@ class Parser(object):
                     print("Error in Parser: Non-terminal: <statement_z> : Error from <id_z>")
                 return False          
         elif lookahead['value'] == '(':
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if self.expr_list():
-                if self.scanner.get_next_token()['value'] == ')':
-                    if self.scanner.get_next_token()['value'] == ';':
+                temp_token = self.scanner.get_next_token()
+                if temp_token['value'] == ')':
+                    Token_queue.put(temp_token)
+                    temp_token = self.scanner.get_next_token()
+                    if temp_token['value'] == ';':
+                        Token_queue.put(temp_token)
                         if DEBUG:
                             print("<statement_z> : return True")
                         return True
@@ -1020,9 +1058,13 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER:
             if self.id():
-                if self.scanner.get_next_token()['value'] == '=':
+                temp_token = self.scanner.get_next_token()
+                if temp_token['value'] == '=':
+                    Token_queue.put(temp_token)
                     if self.expression():
-                        if self.scanner.get_next_token()['value'] == ';':
+                        temp_token = self.scanner.get_next_token()
+                        if temp_token['value'] == ';':
+                            Token_queue.put(temp_token)
                             if DEBUG:
                                 print("<assignment> : return True")
                             return True
@@ -1056,11 +1098,17 @@ class Parser(object):
             print("<func_call> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)                   
         if  lookahead['type'] == TOKEN_TYPES.IDENTIFIER:
-            self.scanner.get_next_token()
-            if self.scanner.get_next_token()['value'] == '(':
+            Token_queue.put(self.scanner.get_next_token())
+            temp_token = self.scanner.get_next_token()
+            if temp_token['value'] == '(':
+                Temp_queue.put(temp_token)
                 if self.expr_list():
-                    if self.scanner.get_next_token()['value'] == ')':
-                        if self.scanner.get_next_token()['value'] == ';':
+                    temp_token = self.scanner.get_next_token()
+                    if temp_token['value'] == ')':
+                        Token_queue.put(temp_token)
+                        temp_token = self.scanner.get_next_token()
+                        if temp_token['value'] == ';':
+                            Token_queue.put(temp_token)
                             if DEBUG:
                                 print("<func_call> : return True")
                             return True
@@ -1145,7 +1193,7 @@ class Parser(object):
             print("<non_empty_expr_list_prime> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == ',':
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if self.expression():
                 if self.non_empty_expr_list_prime():
                     if DEBUG:
@@ -1173,10 +1221,12 @@ class Parser(object):
             print("<if_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'if':
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if self.scanner.get_next_token()['value'] == '(':
                 if self.condition_expression():
-                    if self.scanner.get_next_token()['value'] == ')':
+                    temp_token = self.scanner.get_next_token()
+                    if temp_token['value'] == ')':
+                        Token_queue.put(temp_token)
                         if self.block_statements():
                             if DEBUG:
                                 print("<if_statement> : return True")
@@ -1267,12 +1317,12 @@ class Parser(object):
             print("<condition_op> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == '&&':
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if DEBUG:
                 print("<condition_op> : return True")
             return True
         if lookahead['value'] == '||':
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if DEBUG:
                 print("<condition_op> : return True")
             return True
@@ -1327,7 +1377,7 @@ class Parser(object):
             print("<comparison_op> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['==', '!=', '>', '>=', '<', '<=']:
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if DEBUG:
                 print("<comparison_op> : return True")
             return True
@@ -1345,10 +1395,14 @@ class Parser(object):
             print("<while_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'while':
-            self.scanner.get_next_token()
-            if self.scanner.get_next_token()['value'] == '(':
+            Token_queue.put(self.scanner.get_next_token())
+            temp_token = self.scanner.get_next_token()
+            if temp_token['value'] == '(':
+                Token_queue.put(temp_token)
                 if self.condition_expression():
-                    if self.scanner.get_next_token()['value'] == ')':
+                    temp_token = self.scanner.get_next_token()
+                    if temp_token['value'] == ')':
+                        Token_queue.put(temp_token)
                         if self.block_statements():
                             if DEBUG:
                                 print("<while_statement> : return True")
@@ -1382,7 +1436,7 @@ class Parser(object):
             print("<return_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'return':
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if self.return_statement_z():
                 if DEBUG:
                     print("<return_statement> : return True")
@@ -1407,7 +1461,9 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER or lookahead['type'] ==  TOKEN_TYPES.NUMBER  or lookahead['value'] in ['-', '(']:
             if self.expression():
-                if self.scanner.get_next_token()['value'] == ';':
+                temp_token = self.scanner.get_next_token()
+                if temp_token['value'] == ';':
+                    Token_queue.put(temp_token)
                     if DEBUG:
                         print("<return_statement_z> : return True")
                     return True
@@ -1420,7 +1476,7 @@ class Parser(object):
                     print("Error in Parser: Non-terminal: <return_statement_z> : Error from <expression>")
                 return False
         elif lookahead['value'] == ';':
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if DEBUG:
                 print("<return_statement_z> : return True")
             return True
@@ -1438,8 +1494,10 @@ class Parser(object):
             print("<break_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'break':
-            self.scanner.get_next_token()
-            if self.scanner.get_next_token()['value'] == ';':
+            Token_queue.put(self.scanner.get_next_token())
+            temp_token = self.scanner.get_next_token()
+            if temp_token['value'] == ';':
+                Token_queue.put(temp_token)
                 if DEBUG:
                     print("<break_statement> : return True")
                 return True
@@ -1461,8 +1519,10 @@ class Parser(object):
             print("<continue_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'continue':
-            self.scanner.get_next_token()
-            if self.scanner.get_next_token()['value'] ==  ';':
+            Token_queue.put(self.scanner.get_next_token())
+            temp_token = self.scanner.get_next_token()
+            if temp_token['value'] ==  ';':
+                Token_queue.put(temp_token)
                 if DEBUG:
                     print("<continue_statement> : return True")
                 return True
@@ -1545,7 +1605,7 @@ class Parser(object):
             print("<addop> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['+', '-']:
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if DEBUG:
                 print("<addop> : return True")
             return True
@@ -1624,7 +1684,7 @@ class Parser(object):
             print("<mulop> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['*', '/']:
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if DEBUG:
                 print("<mulop> : return True")
             return True
@@ -1645,7 +1705,7 @@ class Parser(object):
             print("<factor> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER:
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if self.factor_z():
                 if DEBUG:
                     print("<factor> : return True")
@@ -1655,22 +1715,26 @@ class Parser(object):
                     print("Error in Parser: Non-terminal: <factor> : Error from <factor_z>")
                 return False                   
         elif lookahead['type'] == TOKEN_TYPES.NUMBER:
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if DEBUG:
                 print("<factor> : return True")
             return True
         elif lookahead['value'] == '-':
-            self.scanner.get_next_token()
-            if self.scanner.get_next_token()['type'] == TOKEN_TYPES.NUMBER:
+            Token_queue.put(self.scanner.get_next_token())
+            temp_token = self.scanner.get_next_token()
+            if temp_token['type'] == TOKEN_TYPES.NUMBER:
+                Token_queue.put(temp_token)
                 if DEBUG:
                     print("<factor> : return True")
                 return True
         elif lookahead['value'] == '(':
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if self.expression():
                 if DEBUG:
                     print("after expression in <factor> : <%s> " % (self.scanner.token_lookahead(1)))
-                if self.scanner.get_next_token()['value'] == ')':
+                temp_token = self.scanner.get_next_token()
+                if temp_token['value'] == ')':
+                    Token_queue.put(temp_token)
                     if DEBUG:
                         print("<factor> : return True")
                     return True
@@ -1698,9 +1762,11 @@ class Parser(object):
             print("<factor_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == '[':
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if self.expression():
-                if self.scanner.get_next_token()['value'] == ']':
+                temp_token = self.scanner.get_next_token()
+                if temp_token['value'] == ']':
+                    Token_queue.put(temp_token)
                     if DEBUG:
                         print("<factor_z> : return True")
                     return True
@@ -1713,9 +1779,11 @@ class Parser(object):
                     print("Error in Parser: Non-terminal: <factor_z> : Error from <expression>")
                 return False 
         elif lookahead['value'] == '(':
-            self.scanner.get_next_token()
+            Token_queue.put(self.scanner.get_next_token())
             if self.expr_list():
-                if self.scanner.get_next_token()['value'] == ')':
+                temp_token = self.scanner.get_next_token()
+                if temp_token['value'] == ')':
+                    Token_queue.put(temp_token)
                     if DEBUG:
                         print("<factor_z> : return True")
                     return True

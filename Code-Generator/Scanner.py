@@ -127,6 +127,7 @@ class Scanner(object):
             delimiters are also considered words. """
         for ch in self.character():
             if ch in [' ', '\n', '\t']:
+                Token_queue.put({'type': 'SEPARATORS', 'value':ch})
                 continue
                 #return {'type': 0, 'value':ch}  # 0 stands for delimiter
             elif ch.isalpha():
