@@ -11,17 +11,18 @@ OUTPUT:
     OR
     error
 """
-# Parameter list of function onwards, also capture parenthesis before and after list
+# Handling for brackets ([]) within expressions and otherwise
+# Handling for function declarations - eg - int a();
 
 from __future__ import division,print_function
 import Queue
 from Scanner import Scanner, Token, TOKEN_TYPES, DEBUG
-from Code_Generator import Code_Generator, Token_queue, Local_dict, Func_decl_queue,Parameter_queue
+from Code_Generator import Code_Generator, Token_queue, Local_dict, Func_decl_queue,Parameter_queue, Expression_queue, Token_stack
 import sys,re,traceback,random, operator, string, time
 sys.dont_write_bytecode=True
 
 FIRST_TIME_IND = True
-#DEBUG = True
+DEBUG = True
 #DATA_DECLARATION = False
 
 class Parser(object):
@@ -32,6 +33,7 @@ class Parser(object):
         self.statement_count = 0
         self.code_generator = Code_Generator(filename)
         self.DATA_DECLARATION_IND = False
+        self.expression_counter = 0
 
     def program(self):
         """ <program> --> empty
@@ -1212,7 +1214,10 @@ class Parser(object):
             print("<non_empty_expr_list_prime> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == ',':
-            Token_queue.put(self.scanner.get_next_token())
+            if Expression_queue.qsize() > 0:
+                Expression_queue.put(self.scanner.get_next_token())
+            else:
+                Token_queue.put(self.scanner.get_next_token())
             if self.expression():
                 if self.non_empty_expr_list_prime():
                     if DEBUG:
@@ -1563,8 +1568,17 @@ class Parser(object):
             print("<expression> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER or lookahead['type'] == TOKEN_TYPES.NUMBER or lookahead['value'] in ['-', '(']:
+            self.expression_counter = self.expression_counter + 1
+            if Expression_queue.qsize() == 0:
+                while(Token_queue.qsize() > 0 and Token_queue.queue[-1]['value'] != '\n'):
+                    Token_stack.append(Token_queue.queue[-1])
+                    del(Token_queue.queue[-1])
+
             if self.term():
                 if self.expression_prime():
+                    self.expression_counter = self.expression_counter - 1
+                    if self.expression_counter == 0:
+                        self.code_generator.resolve_expression()
                     if DEBUG:
                         print("<expression> : return True")
                     return True
@@ -1624,7 +1638,7 @@ class Parser(object):
             print("<addop> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['+', '-']:
-            Token_queue.put(self.scanner.get_next_token())
+            Expression_queue.put(self.scanner.get_next_token())
             if DEBUG:
                 print("<addop> : return True")
             return True
@@ -1703,7 +1717,7 @@ class Parser(object):
             print("<mulop> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] in ['*', '/']:
-            Token_queue.put(self.scanner.get_next_token())
+            Expression_queue.put(self.scanner.get_next_token())
             if DEBUG:
                 print("<mulop> : return True")
             return True
@@ -1724,7 +1738,7 @@ class Parser(object):
             print("<factor> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER:
-            Token_queue.put(self.scanner.get_next_token())
+            Expression_queue.put(self.scanner.get_next_token())
             if self.factor_z():
                 if DEBUG:
                     print("<factor> : return True")
@@ -1734,26 +1748,26 @@ class Parser(object):
                     print("Error in Parser: Non-terminal: <factor> : Error from <factor_z>")
                 return False                   
         elif lookahead['type'] == TOKEN_TYPES.NUMBER:
-            Token_queue.put(self.scanner.get_next_token())
+            Expression_queue.put(self.scanner.get_next_token())
             if DEBUG:
                 print("<factor> : return True")
             return True
         elif lookahead['value'] == '-':
-            Token_queue.put(self.scanner.get_next_token())
+            Expression_queue.put(self.scanner.get_next_token())
             temp_token = self.scanner.get_next_token()
             if temp_token['type'] == TOKEN_TYPES.NUMBER:
-                Token_queue.put(temp_token)
+                Expression_queue.put(temp_token)
                 if DEBUG:
                     print("<factor> : return True")
                 return True
         elif lookahead['value'] == '(':
-            Token_queue.put(self.scanner.get_next_token())
+            Expression_queue.put(self.scanner.get_next_token())
             if self.expression():
                 if DEBUG:
                     print("after expression in <factor> : <%s> " % (self.scanner.token_lookahead(1)))
                 temp_token = self.scanner.get_next_token()
                 if temp_token['value'] == ')':
-                    Token_queue.put(temp_token)
+                    Expression_queue.put(temp_token)
                     if DEBUG:
                         print("<factor> : return True")
                     return True
@@ -1781,11 +1795,11 @@ class Parser(object):
             print("<factor_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == '[':
-            Token_queue.put(self.scanner.get_next_token())
+            Expression_queue.put(self.scanner.get_next_token())
             if self.expression():
                 temp_token = self.scanner.get_next_token()
                 if temp_token['value'] == ']':
-                    Token_queue.put(temp_token)
+                    Expression_queue.put(temp_token)
                     if DEBUG:
                         print("<factor_z> : return True")
                     return True
@@ -1798,11 +1812,12 @@ class Parser(object):
                     print("Error in Parser: Non-terminal: <factor_z> : Error from <expression>")
                 return False 
         elif lookahead['value'] == '(':
-            Token_queue.put(self.scanner.get_next_token())
+            Expression_queue.put(self.scanner.get_next_token())
             if self.expr_list():
                 temp_token = self.scanner.get_next_token()
                 if temp_token['value'] == ')':
-                    Token_queue.put(temp_token)
+                    print("Expression_queue size: " + str(Expression_queue.qsize()))
+                    Expression_queue.put(temp_token)
                     if DEBUG:
                         print("<factor_z> : return True")
                     return True
