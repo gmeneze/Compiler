@@ -18,8 +18,10 @@ import sys,re,traceback,random, operator, string, time
 sys.dont_write_bytecode=True
 
 Token_queue = Queue.Queue()
+Func_decl_queue = Queue.Queue()
 Local_dict = {}
 Gocal_dict = {}
+Parameter_queue = Queue.Queue()
 
 class Code_Generator(object):
     """ Encapsulate all functionality related to reading a file. """
@@ -37,18 +39,38 @@ class Code_Generator(object):
     def print_global(self):
     	var_size = len(Local_dict)
     	if var_size > 0:
-    		self.file.write("int global[" + str(var_size) + "]")
+    		self.file.write("int global[" + str(var_size) + "];")
     		for key in Local_dict:
     			Global_dict = copy.deepcopy(Local_dict)	
 		Local_dict.clear()
 
     def print_function(self):  #complete this function
+        self.file.write("\n")
     	var_size = len(Local_dict)
     	if var_size > 0:
-    		self.file.write("int local[" + str(var_size) + "]")
-		for key in Local_dict:
-			Global_dict = copy.deepcopy(Local_dict)	
-		Local_dict.clear()
+    		self.file.write("int local[" + str(var_size) + "];")
+        while Parameter_queue.qsize() > 0:
+            temp_token = Parameter_queue.get()
+            self.file.write("\nlocal[" + str(Local_dict[temp_token['value']]) + "]=" + temp_token['value'] + ";")
+        while Token_queue.qsize() > 0:
+            temp_token = Token_queue.get()
+            if temp_token['type'] == 'SEPARATORS':
+                self.file.write(temp_token['value'])
+                if Token_queue.qsize() > 0:
+                    temp_token = Token_queue.get()
+                else:
+                    break                    
+            while temp_token['type'] == 'SEPARATORS' and Token_queue.qsize() > 0:
+                temp_token = Token_queue.get()         
+            if temp_token['value'] in Local_dict:
+                self.file.write("local[" + str(Local_dict[temp_token['value']]) + "]")
+            else:
+                self.file.write(temp_token['value'])
+        self.file.write("\n")
 
-	def temp_text(self):
-		print("hey there")
+    def print_function_declaration(self):
+        self.file.write("\n")
+        while Func_decl_queue.qsize() > 0:
+            temp_token = Func_decl_queue.get()
+            self.file.write(temp_token['value'])
+        #self.file.write("\n")

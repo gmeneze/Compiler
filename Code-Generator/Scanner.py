@@ -13,7 +13,7 @@ OUTPUT:
 
 from __future__ import division,print_function
 import sys,re,traceback,random, operator, string, time
-from Code_Generator import Code_Generator, Token_queue, Local_dict
+from Code_Generator import Code_Generator, Token_queue, Local_dict, Func_decl_queue
 sys.dont_write_bytecode=True
 
 DEBUG = False
@@ -127,7 +127,44 @@ class Scanner(object):
             delimiters are also considered words. """
         for ch in self.character():
             if ch in [' ', '\n', '\t']:
-                Token_queue.put({'type': 'SEPARATORS', 'value':ch})
+                if Func_decl_queue.qsize() > 0:
+                    Func_decl_queue.put({'type': 'SEPARATORS', 'value':ch})
+                else:
+                    print("character is: [" + ch + "]")
+                    Token_queue.put({'type': 'SEPARATORS', 'value':str(ch)})
+                    print("Token queue size: " + str(Token_queue.qsize()))
+                continue
+                #return {'type': 0, 'value':ch}  # 0 stands for delimiter
+            elif ch.isalpha():
+                return Token.is_identifier_or_reserved_word(ch, self)
+            elif ch.isdigit():
+                return Token.is_number(ch, self)
+            elif ch == '"':
+                return Token.is_string(ch, self)
+            elif ch in ['#', '/']:
+                # Ignore meta statements in parser
+                #return Token.is_meta_statement(ch, self)
+                token = Token.is_meta_statement(ch, self)
+                if token['type'] == TOKEN_TYPES.SYMBOL:
+                    return token
+                elif token['type'] == TOKEN_TYPES.META_STATEMENT:
+                    Token_queue.put(token)
+                    continue
+            else:
+                ret_val = Token.is_symbol(ch, self)
+                if not ret_val:
+                   print("error in Scanner: Invalid Token %s" %(ch))
+                   return {'type': -1, 'value': ch}
+                else:
+                   return ret_val
+        return  {'type': -1, 'value': ''}
+
+    def get_next_lookahead_token(self):
+        """ read input file one word at a time. A word is a group of characters which are terminated
+            by space or tab or newline or any of the symbols listed in Token.symbols. Each of these 
+            delimiters are also considered words. """
+        for ch in self.character():
+            if ch in [' ', '\n', '\t']:
                 continue
                 #return {'type': 0, 'value':ch}  # 0 stands for delimiter
             elif ch.isalpha():
@@ -160,7 +197,7 @@ class Scanner(object):
             if DEBUG:
                 print("tell is: %s" % (self.file.tell()))
             tell = self.file.tell()
-            token = self.get_next_token()
+            token = self.get_next_lookahead_token()
             self.file.seek(tell, 0)
             if DEBUG:
                 print("tell is: %s" % (self.file.tell()))
