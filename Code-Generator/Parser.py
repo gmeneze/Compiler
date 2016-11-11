@@ -967,7 +967,7 @@ class Parser(object):
             Token_queue.put(self.scanner.get_next_token())
             temp_token = self.scanner.get_next_token()
             if temp_token['value'] == '(':
-                Token_queue.put(Temp_token)
+                Token_queue.put(temp_token)
                 temp_token = self.scanner.get_next_token()
                 if temp_token['type'] == TOKEN_TYPES.STRING:
                     Token_queue.put(temp_token)
@@ -1246,7 +1246,9 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'if':
             Token_queue.put(self.scanner.get_next_token())
-            if self.scanner.get_next_token()['value'] == '(':
+            temp_token = self.scanner.get_next_token()
+            if temp_token['value'] == '(':
+                Token_queue.put(temp_token)
                 if self.condition_expression():
                     temp_token = self.scanner.get_next_token()
                     if temp_token['value'] == ')':

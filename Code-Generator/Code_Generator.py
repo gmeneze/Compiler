@@ -76,6 +76,7 @@ class Code_Generator(object):
             else:
                 self.file.write(temp_token['value'])
         self.file.write("\n")
+        Local_dict.clear()
 
     def print_function_declaration(self):
         self.file.write("\n")
@@ -84,11 +85,7 @@ class Code_Generator(object):
             self.file.write(temp_token['value'])
         #self.file.write("\n")
 
-    def handle_function_call_in_expression(values_stack):
-        values_stack.pop()
-
     def resolve_expression(self):
-        prev_token = None
 
         Expression_list = []
         while Expression_queue.qsize() > 0:
@@ -152,7 +149,7 @@ class Code_Generator(object):
         space_separator = {'type':'SEPARATORS', 'value': ' '}
         Token_queue.put(space_separator)
         Token_queue.put(Expression_list[0])
-        self.expression_token_counter = 0
+        #self.expression_token_counter = 0
 
     def resolve_single_expression(self, queue):
         values_stack = []
@@ -161,12 +158,9 @@ class Code_Generator(object):
         while queue.qsize() != 0:
             token = queue.get()
             print("expression token is: " + token['value'])
-            if token['type'] == TOKEN_TYPES.IDENTIFIER:
+            if token['type'] == TOKEN_TYPES.IDENTIFIER or token['type'] == TOKEN_TYPES.NUMBER:
                 values_stack.append(token)
             elif self.is_left_parenthesis(token):
-                if prev_token != None and prev_token['type'] == TOKEN_TYPES.IDENTIFIER:
-                    self.handle_function_call_in_expression(values_stack)
-                    continue
                 operator_stack.append(token)
             elif self.is_right_parenthesis(token):
                 print("is right parenthesis: " + token['value'])
@@ -194,9 +188,12 @@ class Code_Generator(object):
             result = self.apply_operator(operator, value_1, value_2)
             values_stack.append(result)            
 
-        final_value = values_stack.pop()
-        return final_value
-        print("resolve expression completed")
+        if len(values_stack) == 0:
+            return {'type': 'DUMMY', 'value':''}
+        else:
+            final_value = values_stack.pop()
+            return final_value
+        #print("resolve expression completed")
 
     def is_left_parenthesis(self, token):
         return token['value'] == '('
@@ -241,8 +238,6 @@ class Code_Generator(object):
         Token_queue.put(newline_separator)
         self.expression_token_counter = self.expression_token_counter + 1
         return temp_token
-
-
 
     def apply_operator(self, operator, token1, token2):
         print("Token queue size in apply_operator: " + str(Token_queue.qsize()))
