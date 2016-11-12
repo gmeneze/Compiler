@@ -58,7 +58,7 @@ class Token(object):
                 scanner.consume(-1)
                 break
 
-        return {'type':TOKEN_TYPES.NUMBER, 'value':str}
+        return {'type':TOKEN_TYPES.NUMBER, 'value':str} 
 
     @staticmethod
     def is_symbol(character, scanner):

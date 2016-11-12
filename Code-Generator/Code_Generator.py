@@ -26,7 +26,11 @@ sys.dont_write_bytecode=True
 Token_queue = Queue.Queue()
 Func_decl_queue = Queue.Queue()
 Local_dict = {}
-Gocal_dict = {}
+Local_array_offset_dict = {}
+Local_array_size_dict = {}
+Global_array_offset_dict = {}
+Global_array_size_dict = {}
+Global_dict = {}
 Parameter_queue = Queue.Queue()
 Token_stack = []
 Expression_queue = Queue.Queue()
@@ -39,25 +43,45 @@ class Code_Generator(object):
         self.file = open(new_filename, 'w')
         self.file.truncate()
         self.expression_token_counter = 0
+        self.local_array_size = 0
+        self.global_array_size = 0
+
+    def print_meta_statement(self):
+        print("print_metastatement called")
+        while Token_queue.qsize() > 0:
+            temp_token = Token_queue.get()
+            self.file.write(temp_token['value'])
 
     def add_to_dict(self, token):
     	global Local_dict
     	if token['value'] not in Local_dict:
-    		Local_dict.update({token['value'] : len(Local_dict)})
+            Local_dict.update({token['value'] : self.local_array_size})
+            self.local_array_size = self.local_array_size + 1
+
+    def add_array_to_dict(self, list):
+        global Local_array_offset_dict, Local_array_size_dict
+        Local_array_offset_dict.update({list[0]['value'] : str(self.local_array_size)})
+        Local_array_size_dict.update({list[0]['value'] : list[1]['value']}) 
+        self.local_array_size = self.local_array_size + int(list[1]['value'])
 
     def print_global(self):
-    	var_size = len(Local_dict)
-    	if var_size > 0:
-    		self.file.write("int global[" + str(var_size) + "];")
-    		for key in Local_dict:
-    			Global_dict = copy.deepcopy(Local_dict)	
-		Local_dict.clear()
+        #print("In print_global Token_queue size is: " + str(Token_queue.qsize()))
+    	if self.local_array_size > 0:
+            self.file.write("int global[" + str(self.local_array_size) + "];")
+            Global_dict = copy.deepcopy(Local_dict)	
+            Global_array_offset_dict = copy.deepcopy(Local_array_offset_dict)
+            Global_array_size_dict = copy.deepcopy(Local_array_size_dict)
+            self.global_array_size = self.local_array_size
+        Local_dict.clear()
+        Local_array_size_dict.clear()
+        Local_array_offset_dict.clear()
+        self.local_array_size = 0
 
     def print_function(self):  #complete this function
         self.file.write("\n")
     	var_size = len(Local_dict)
     	if var_size > 0:
-    		self.file.write("int local[" + str(var_size) + "];")
+    		self.file.write("int local[" + str(self.local_array_size) + "];")
         while Parameter_queue.qsize() > 0:
             temp_token = Parameter_queue.get()
             self.file.write("\nlocal[" + str(Local_dict[temp_token['value']]) + "] = " + temp_token['value'] + ";")
@@ -73,10 +97,21 @@ class Code_Generator(object):
                 temp_token = Token_queue.get()         
             if temp_token['value'] in Local_dict:
                 self.file.write("local[" + str(Local_dict[temp_token['value']]) + "]")
+            elif temp_token['value'] in Local_array_offset_dict:
+                self.file.write("local[" + str(Local_array_offset_dict[temp_token['value']] + " +"))
+            elif temp_token['value'] == '[':
+                continue
+            elif temp_token['value'] in Global_dict:
+                self.file.write("global[" + str(Global_dict[temp_token['value']]) + "]")
+            elif temp_token['value'] in Global_array_offset_dict:
+                self.file.write("global[" + str(Local_array_offset_dict[temp_token['value']] + " +"))
             else:
                 self.file.write(temp_token['value'])
         self.file.write("\n")
         Local_dict.clear()
+        Local_array_size_dict.clear()
+        Local_array_offset_dict.clear()
+        self.local_array_size = 0
 
     def print_function_declaration(self):
         self.file.write("\n")
@@ -88,8 +123,18 @@ class Code_Generator(object):
     def resolve_expression(self):
 
         Expression_list = []
+
         while Expression_queue.qsize() > 0:
             Expression_list.append(Expression_queue.get())
+
+        #-number is valid
+        i=0
+        while i < len(Expression_list)-1:
+            if Expression_list[i]['value'] == '-':
+                if Expression_list[i+1]['type'] == TOKEN_TYPES.NUMBER:
+                    Expression_list[i+1]['value'] = '-' + Expression_list[i+1]['value']
+                    del(Expression_list[i])
+            i = i+1
 
         while(len(Expression_list) > 1):
             start_index = -1
@@ -97,8 +142,7 @@ class Code_Generator(object):
             i = 0
             for i in range(len(Expression_list)):
                 if Expression_list[i]['value'] == '(' and i-1 >= 0 and Expression_list[i-1]['type'] == TOKEN_TYPES.IDENTIFIER:
-                    start_index = i
-            
+                    start_index = i           
             if start_index != -1:
                 bracket_counter = 0
                 for i in range(start_index+1, len(Expression_list)):
