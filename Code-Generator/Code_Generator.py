@@ -80,11 +80,11 @@ class Code_Generator(object):
         print("Global structures are :")
         print("Global Dict contents are :")
         for key in Global_dict:
-            print("key is: " + key + " value is: " + Global_dict[key])
+            print("key is: " + str(key) + " value is: " + str(Global_dict[key]))
         for key in Global_array_offset_dict:
-            print("key is: " + key + " value is: " + Global_array_offset_dict[key])
+            print("key is: " + str(key) + " value is: " + str(Global_array_offset_dict[key]))
         for key in Global_array_size_dict:
-            print("key is: " + key + " value is: " + Global_array_size_dict[key])        
+            print("key is: " + str(key) + " value is: " + str(Global_array_size_dict[key]))       
 
         self.local_array_size = 0
 
@@ -94,11 +94,11 @@ class Code_Generator(object):
         print("====print function:====")
         print("Global Dict contents are :, Global_dict size is: " + str(len(Global_dict)) + " Global_array_offset_dict size is: " + str(len(Global_array_offset_dict)) + " Global_array_size_dict: " + str(len(Global_array_size_dict)))
         for key in Global_dict:
-            print("key is: " + key + " value is: " + Global_dict[key])
+            print("key is: " + str(key) + " value is: " + str(Global_dict[key]))
         for key in Global_array_offset_dict:
-            print("key is: " + key + " value is: " + Global_array_offset_dict[key])
+            print("key is: " + str(key) + " value is: " + str(Global_array_offset_dict[key]))
         for key in Global_array_size_dict:
-            print("key is: " + key + " value is: " + Global_array_size_dict[key])   
+            print("key is: " + str(key) + " value is: " + str(Global_array_size_dict[key]))   
 
         self.file.write("\n")
     	var_size = len(Local_dict)
@@ -195,23 +195,27 @@ class Code_Generator(object):
             if start_index != -1:
                 start_index = start_index+1
                 end_index = end_index-1
-                temp_queue = Queue.Queue()
+                temp_token_list = []
                 for index in range(start_index, end_index+1):
-                    temp_queue.put(Expression_list[index])
+                    temp_token_list.append(Expression_list[index])
                 del(Expression_list[start_index:end_index+1])
-                parameter_token = self.resolve_single_expression(temp_queue)
+                #parameter_token = self.resolve_single_expression(temp_queue)
 
                 function_name_token = Expression_list[start_index-2]
                 print("start index is: " + str(start_index))
                 del(Expression_list[start_index-2:start_index+1])
 
-                final_token = self.get_function_token(function_name_token, parameter_token, bracket_token)
+                final_token = self.get_function_token(function_name_token, bracket_token, temp_token_list)
 
                 Expression_list.insert(start_index-2, final_token)
             else:
                 start_index = 0
                 end_index = len(Expression_list)-1
 
+                print("=== before final call, Expression list is ==")
+                for temp_token in Expression_list:
+                    print(temp_token['value'])
+                print("============================================")
                 temp_queue = Queue.Queue()
                 for index in range(start_index, end_index+1):
                     temp_queue.put(Expression_list[index])
@@ -296,7 +300,13 @@ class Code_Generator(object):
         else:
             return True
 
-    def get_function_token(self, function_name_token, parameter_token, bracket_token):
+    def get_function_token(self, function_name_token, bracket_token, temp_token_list):
+        print("========IN GET_FUNCTION_TOKEN ==========")
+        for temp_token in temp_token_list:
+            print(temp_token['value'])
+        print("========================================")
+
+
         var_name = str(self.expression_token_counter) + "num"
         print("var name is: " + var_name)
         temp_token = {'type':TOKEN_TYPES.IDENTIFIER, 'value':var_name}
@@ -310,13 +320,28 @@ class Code_Generator(object):
         if bracket_token['value'] == '[':
             right_bracket = {'type':TOKEN_TYPES.SYMBOL, 'value': ']'}
 
+        parameter_token_list = []
+        temp_queue = Queue.Queue()
+        for list_token in temp_token_list:
+            if list_token['value'] == ',':
+                parameter_token_list.append(self.resolve_single_expression(temp_queue))
+                parameter_token_list.append(list_token)
+                temp_queue = Queue.Queue()
+            else:
+                temp_queue.put(list_token)
+
+        parameter_token_list.append(self.resolve_single_expression(temp_queue))
+
         Token_queue.put(temp_token)
         Token_queue.put(space_separator)
         Token_queue.put(equal_operator)
         Token_queue.put(space_separator)      
         Token_queue.put(function_name_token)
         Token_queue.put(left_bracket)
-        Token_queue.put(parameter_token)
+
+        for parameter_token in parameter_token_list:
+            Token_queue.put(parameter_token)
+
         Token_queue.put(right_bracket)
         Token_queue.put(semicolon_operator)
         Token_queue.put(newline_separator)

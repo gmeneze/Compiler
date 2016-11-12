@@ -1840,7 +1840,16 @@ class Parser(object):
             print("<factor_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == '[':
+            temp_token = {'type':'ARRAY_OFFSET', 'value': Expression_queue.queue[-1]['value']}
+            addition_token = {'type':TOKEN_TYPES.SYMBOL, 'value': '+'}
             Expression_queue.put(self.scanner.get_next_token())
+            Expression_queue.put(temp_token)
+            Expression_queue.put(addition_token)
+
+            print("=====Expression queue in factor_z is:====")
+            for i in range(Expression_queue.qsize()):
+                print(Expression_queue.queue[i]['value'])
+            print("=================================")
             if self.expression():
                 temp_token = self.scanner.get_next_token()
                 if temp_token['value'] == ']':
