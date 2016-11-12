@@ -175,16 +175,18 @@ class Code_Generator(object):
             start_index = -1
             end_index = -1
             i = 0
+            bracket_token = None
             for i in range(len(Expression_list)):
-                if Expression_list[i]['value'] == '(' and i-1 >= 0 and Expression_list[i-1]['type'] == TOKEN_TYPES.IDENTIFIER:
+                if Expression_list[i]['value'] in ['(', '['] and i-1 >= 0 and Expression_list[i-1]['type'] == TOKEN_TYPES.IDENTIFIER:
+                    bracket_token = Expression_list[i]
                     start_index = i           
             if start_index != -1:
                 bracket_counter = 0
                 for i in range(start_index+1, len(Expression_list)):
-                    if Expression_list[i]['value'] == '(':
+                    if Expression_list[i]['value'] in ['(', '[']:
                         bracket_counter = bracket_counter + 1
 
-                    if Expression_list[i]['value'] == ')':
+                    if Expression_list[i]['value'] in [')', ']']:
                         if bracket_counter == 0:
                             end_index = i
                             break
@@ -203,7 +205,7 @@ class Code_Generator(object):
                 print("start index is: " + str(start_index))
                 del(Expression_list[start_index-2:start_index+1])
 
-                final_token = self.get_function_token(function_name_token, parameter_token)
+                final_token = self.get_function_token(function_name_token, parameter_token, bracket_token)
 
                 Expression_list.insert(start_index-2, final_token)
             else:
@@ -294,7 +296,7 @@ class Code_Generator(object):
         else:
             return True
 
-    def get_function_token(self, function_name_token, parameter_token):
+    def get_function_token(self, function_name_token, parameter_token, bracket_token):
         var_name = str(self.expression_token_counter) + "num"
         print("var name is: " + var_name)
         temp_token = {'type':TOKEN_TYPES.IDENTIFIER, 'value':var_name}
@@ -303,16 +305,19 @@ class Code_Generator(object):
         space_separator = {'type':'SEPARATORS', 'value': ' '}
         newline_separator = {'type':'SEPARATORS', 'value': '\n'}
         semicolon_operator = {'type':TOKEN_TYPES.SYMBOL, 'value': ';'}
-        left_parenthesis = {'type':TOKEN_TYPES.SYMBOL, 'value': '('}
-        right_parenthesis = {'type':TOKEN_TYPES.SYMBOL, 'value': ')'}
+        left_bracket = bracket_token
+        right_bracket = {'type':TOKEN_TYPES.SYMBOL, 'value': ')'}
+        if bracket_token['value'] == '[':
+            right_bracket = {'type':TOKEN_TYPES.SYMBOL, 'value': ']'}
+
         Token_queue.put(temp_token)
         Token_queue.put(space_separator)
         Token_queue.put(equal_operator)
         Token_queue.put(space_separator)      
         Token_queue.put(function_name_token)
-        Token_queue.put(left_parenthesis)
+        Token_queue.put(left_bracket)
         Token_queue.put(parameter_token)
-        Token_queue.put(right_parenthesis)
+        Token_queue.put(right_bracket)
         Token_queue.put(semicolon_operator)
         Token_queue.put(newline_separator)
         self.expression_token_counter = self.expression_token_counter + 1
