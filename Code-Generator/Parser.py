@@ -215,8 +215,9 @@ class Parser(object):
         if DEBUG:
             print("<func_z> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1) 
-        if lookahead['value'] == ';':
-            Token_queue.put(self.scanner.get_next_token())
+        if lookahead['value'] == ';':      
+            Func_decl_queue.put(self.scanner.get_next_token())
+            self.code_generator.print_function_declaration()
             if DEBUG:
                 print("<func_z> : return True")
             return True
@@ -781,7 +782,11 @@ class Parser(object):
                             print("Error in Parser: Non-terminal: <id_z> : Invalid Token")
                         return False                          
             else:
+                temp_token = {'type':'ARRAY_OFFSET', 'value': Token_queue.queue[-1]['value']}
+                addition_token = {'type':TOKEN_TYPES.SYMBOL, 'value': '+'}
                 Token_queue.put(self.scanner.get_next_token())
+                Expression_queue.put(temp_token)
+                Expression_queue.put(addition_token)
                 if self.expression():
                     print("After expression returns")
                     temp_token = self.scanner.get_next_token()
@@ -1608,7 +1613,7 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['type'] == TOKEN_TYPES.IDENTIFIER or lookahead['type'] == TOKEN_TYPES.NUMBER or lookahead['value'] in ['-', '(']:
             self.expression_counter = self.expression_counter + 1
-            if Expression_queue.qsize() == 0:
+            if Expression_queue.qsize() == 0 or (Expression_queue.qsize() == 2 and Expression_queue.queue[-2]['type'] == 'ARRAY_OFFSET'):
                 while(Token_queue.qsize() > 0 and Token_queue.queue[-1]['value'] != '\n'):
                     Token_stack.append(Token_queue.queue[-1])
                     del(Token_queue.queue[-1])
@@ -1792,10 +1797,11 @@ class Parser(object):
                 print("<factor> : return True")
             return True
         elif lookahead['value'] == '-':
-            Expression_queue.put(self.scanner.get_next_token())
+            self.scanner.get_next_token()
             temp_token = self.scanner.get_next_token()
             if temp_token['type'] == TOKEN_TYPES.NUMBER:
-                Expression_queue.put(temp_token)
+                new_token = {'type' : temp_token['type'], 'value': '-' + temp_token['value']}
+                Expression_queue.put(new_token)
                 if DEBUG:
                     print("<factor> : return True")
                 return True

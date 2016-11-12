@@ -66,6 +66,7 @@ class Code_Generator(object):
 
     def print_global(self):
         #print("In print_global Token_queue size is: " + str(Token_queue.qsize()))
+        global Global_dict, Global_array_offset_dict, Global_array_size_dict
     	if self.local_array_size > 0:
             self.file.write("int global[" + str(self.local_array_size) + "];")
             Global_dict = copy.deepcopy(Local_dict)	
@@ -75,9 +76,30 @@ class Code_Generator(object):
         Local_dict.clear()
         Local_array_size_dict.clear()
         Local_array_offset_dict.clear()
+
+        print("Global structures are :")
+        print("Global Dict contents are :")
+        for key in Global_dict:
+            print("key is: " + key + " value is: " + Global_dict[key])
+        for key in Global_array_offset_dict:
+            print("key is: " + key + " value is: " + Global_array_offset_dict[key])
+        for key in Global_array_size_dict:
+            print("key is: " + key + " value is: " + Global_array_size_dict[key])        
+
         self.local_array_size = 0
 
     def print_function(self):  #complete this function
+
+
+        print("====print function:====")
+        print("Global Dict contents are :, Global_dict size is: " + str(len(Global_dict)) + " Global_array_offset_dict size is: " + str(len(Global_array_offset_dict)) + " Global_array_size_dict: " + str(len(Global_array_size_dict)))
+        for key in Global_dict:
+            print("key is: " + key + " value is: " + Global_dict[key])
+        for key in Global_array_offset_dict:
+            print("key is: " + key + " value is: " + Global_array_offset_dict[key])
+        for key in Global_array_size_dict:
+            print("key is: " + key + " value is: " + Global_array_size_dict[key])   
+
         self.file.write("\n")
     	var_size = len(Local_dict)
     	if var_size > 0:
@@ -94,17 +116,26 @@ class Code_Generator(object):
                 else:
                     break                    
             while temp_token['type'] == 'SEPARATORS' and Token_queue.qsize() > 0:
-                temp_token = Token_queue.get()         
-            if temp_token['value'] in Local_dict:
+                temp_token = Token_queue.get()  
+            if temp_token['type'] == 'ARRAY_OFFSET':
+                if temp_token['value'] in Local_array_offset_dict:
+                    self.file.write(str(Local_array_offset_dict[temp_token['value']]))
+                else:
+                    self.file.write(str(Global_array_offset_dict[temp_token['value']]))
+            elif temp_token['value'] in Local_array_offset_dict: # array variable name
+                self.file.write("local")
+            elif temp_token['value'] in Local_dict:
                 self.file.write("local[" + str(Local_dict[temp_token['value']]) + "]")
-            elif temp_token['value'] in Local_array_offset_dict:
-                self.file.write("local[" + str(Local_array_offset_dict[temp_token['value']] + " +"))
-            elif temp_token['value'] == '[':
-                continue
+            #elif temp_token['value'] in Local_array_offset_dict:
+            #    self.file.write("local[" + str(Local_array_offset_dict[temp_token['value']] + " +"))
+            #elif temp_token['value'] == '[':
+            #    continue
             elif temp_token['value'] in Global_dict:
                 self.file.write("global[" + str(Global_dict[temp_token['value']]) + "]")
+            #elif temp_token['value'] in Global_array_offset_dict:
+            #    self.file.write("global[" + str(Local_array_offset_dict[temp_token['value']] + " +"))
             elif temp_token['value'] in Global_array_offset_dict:
-                self.file.write("global[" + str(Local_array_offset_dict[temp_token['value']] + " +"))
+                self.file.write("global")
             else:
                 self.file.write(temp_token['value'])
         self.file.write("\n")
@@ -127,14 +158,18 @@ class Code_Generator(object):
         while Expression_queue.qsize() > 0:
             Expression_list.append(Expression_queue.get())
 
+        print("In resolve expression, Token_queue contents are :")
+        for i in range(len(Token_stack)):
+            print(Token_stack[i])
+
         #-number is valid
-        i=0
-        while i < len(Expression_list)-1:
-            if Expression_list[i]['value'] == '-':
-                if Expression_list[i+1]['type'] == TOKEN_TYPES.NUMBER:
-                    Expression_list[i+1]['value'] = '-' + Expression_list[i+1]['value']
-                    del(Expression_list[i])
-            i = i+1
+        #i=0
+        #while i < len(Expression_list)-1:
+        #    if Expression_list[i]['value'] == '-':
+        #        if Expression_list[i+1]['type'] == TOKEN_TYPES.NUMBER:
+        #            Expression_list[i+1]['value'] = '-' + Expression_list[i+1]['value']
+        #            del(Expression_list[i])
+        #    i = i+1
 
         while(len(Expression_list) > 1):
             start_index = -1
@@ -201,8 +236,8 @@ class Code_Generator(object):
         #print("Expression queue size: " + str(Expression_queue.qsize()) + " length of token stack is: " + str(len(Token_stack)))
         while queue.qsize() != 0:
             token = queue.get()
-            print("expression token is: " + token['value'])
-            if token['type'] == TOKEN_TYPES.IDENTIFIER or token['type'] == TOKEN_TYPES.NUMBER:
+            print("expression token is: " + str(token['value']))
+            if token['type'] == TOKEN_TYPES.IDENTIFIER or token['type'] == TOKEN_TYPES.NUMBER or token['type'] == 'ARRAY_OFFSET':
                 values_stack.append(token)
             elif self.is_left_parenthesis(token):
                 operator_stack.append(token)
@@ -221,7 +256,7 @@ class Code_Generator(object):
                     operator = operator_stack.pop()
                     value_2 = values_stack.pop()
                     value_1 = values_stack.pop()
-                    result = apply_operator(operator, value_1, value_2)
+                    result = self.apply_operator(operator, value_1, value_2)
                     values_stack.append(result)
                 operator_stack.append(token)
             prev_token = token
