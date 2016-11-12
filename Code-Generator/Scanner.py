@@ -149,6 +149,7 @@ class Scanner(object):
                     return token
                 elif token['type'] == TOKEN_TYPES.META_STATEMENT:
                     Token_queue.put(token)
+                    print("adding to token queue")
                     continue
             else:
                 ret_val = Token.is_symbol(ch, self)
