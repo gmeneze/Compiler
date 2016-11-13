@@ -1299,7 +1299,7 @@ class Parser(object):
                     if temp_token['value'] == ')':
                         Token_queue.put(temp_token)
                         
-                        goto_token_1 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'goto c' + str(self.goto_counter)}
+                        goto_token_1 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': ' goto c' + str(self.goto_counter)}
                         target_token_1 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'c' + str(self.goto_counter) + ':'}
                         
                         self.goto_counter = self.goto_counter + 1
@@ -1311,7 +1311,7 @@ class Parser(object):
                         Token_queue.put(semicolon_token)
                         Token_queue.put(newline_token)
                         
-                        goto_token_2 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'goto c' + str(self.goto_counter)}
+                        goto_token_2 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': ' goto c' + str(self.goto_counter)}
                         target_token_2 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'c' + str(self.goto_counter) + ':'}
                         
                         self.goto_counter = self.goto_counter + 1
@@ -1496,7 +1496,7 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'while':
             
-            goto_token_0 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'goto c' + str(self.goto_counter)}
+            goto_token_0 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': ' goto c' + str(self.goto_counter)}
             target_token_0 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'c' + str(self.goto_counter) + ':'}  
             self.innermost_while_enter_token = goto_token_0
 
@@ -1521,7 +1521,7 @@ class Parser(object):
                     if temp_token['value'] == ')':
                         Token_queue.put(temp_token)
                         
-                        goto_token_1 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'goto c' + str(self.goto_counter)}
+                        goto_token_1 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': ' goto c' + str(self.goto_counter)}
                         target_token_1 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'c' + str(self.goto_counter) + ':'}
                         
                         self.goto_counter = self.goto_counter + 1
@@ -1530,7 +1530,7 @@ class Parser(object):
                         Token_queue.put(semicolon_token)
                         Token_queue.put(newline_token)
                         
-                        goto_token_2 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'goto c' + str(self.goto_counter)}
+                        goto_token_2 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': ' goto c' + str(self.goto_counter)}
                         target_token_2 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'c' + str(self.goto_counter) + ':'}
                         self.innermost_while_exit_token = goto_token_2
 
