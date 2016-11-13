@@ -30,7 +30,7 @@ int check_for_bail(int real, int imag)
 int local[3];
 local[0] = real;
 local[1] = imag;
-if ( local[0] > 4000 || local[1] > 4000)goto c0;
+if ( local[0] > 4000 || local[1] > 4000) goto c0;
 goto c1;
 c0:;
 
@@ -38,7 +38,7 @@ return 0;
 c1:;
 
 local[2] = complex_abs_squared(local[0],local[1]);
-if ( 1600 > local[2])goto c2;
+if ( 1600 > local[2]) goto c2;
 goto c3;
 c2:;
 
@@ -52,7 +52,7 @@ int absval(int x)
 {
 int local[2];
 local[0] = x;
-if ( local[0] < 0)goto c4;
+if ( local[0] < 0) goto c4;
 goto c5;
 c4:;
 
@@ -74,7 +74,7 @@ local[5] = 0;
 local[6] = 16000;
 c6:;
 
-if ( local[5] < 255)goto c7;
+if ( local[5] < 255) goto c7;
 goto c8;
 c7:;
 
@@ -93,7 +93,7 @@ local[2] = local[4];
 local[16] = absval(local[3]);
 local[17] = absval(local[2]);
 local[18] = local[17] + local[16];
-if ( local[18] > 5000)goto c9;
+if ( local[18] > 5000) goto c9;
 goto c10;
 c9:;
 
@@ -114,27 +114,27 @@ int local[6];
 local[1] = 950;
 c11:;
 
-if ( local[1] > -950)goto c12;
+if ( local[1] > -950) goto c12;
 goto c13;
 c12:;
 
 local[0] = -2100;
 c14:;
 
-if ( local[0] < 1000)goto c15;
+if ( local[0] < 1000) goto c15;
 goto c16;
 c15:;
 
 local[3] = checkpixel(local[0],local[1]);
 local[2] = local[3];
-if ( 1 == local[2])goto c17;
+if ( 1 == local[2]) goto c17;
 goto c18;
 c17:;
 
 print("X");
 c18:;
 
-if ( 0 == local[2])goto c19;
+if ( 0 == local[2]) goto c19;
 goto c20;
 c19:;
 

@@ -2,18 +2,16 @@
 #define read(x) scanf("%d",&x)
 #define write(x) printf("%d\n",x)
 
-int max(int a, int b) {
-    if (a>b) {
-        return a;
-    }
-    return b;
+void foo(int m,int n) {
+    m = m + n;
+    n = n + m;
 }
 
 int main() {
-    int a,b;
+    int a;
     read(a);
-    read(b);
-
-    write(max(a,b));
+    foo(a,a);
+    write(a);
 }
+
 

@@ -20,7 +20,7 @@ def enum(**enums):
     return type('Enum', (), enums)
 
 TOKEN_TYPES = enum(IDENTIFIER=1, NUMBER=2, RESERVED_WORD=3, SYMBOL=4, STRING=5, META_STATEMENT=6)
-
+DEBUG = False
 sys.dont_write_bytecode=True
 
 Token_queue = Queue.Queue()
@@ -47,25 +47,31 @@ class Code_Generator(object):
         self.global_array_size = 0
 
     def print_meta_statement(self):
-        print("print_metastatement called")
+        if DEBUG:
+            print("print_metastatement called")
         while Token_queue.qsize() > 0:
             temp_token = Token_queue.get()
             self.file.write(temp_token['value'])
 
     def add_to_dict(self, token):
+        if DEBUG:
+            print("add_to_dict called")
     	global Local_dict
     	if token['value'] not in Local_dict:
             Local_dict.update({token['value'] : self.local_array_size})
             self.local_array_size = self.local_array_size + 1
 
     def add_array_to_dict(self, list):
+        if DEBUG:
+            print("add_array_to_dict called")
         global Local_array_offset_dict, Local_array_size_dict
         Local_array_offset_dict.update({list[0]['value'] : str(self.local_array_size)})
         Local_array_size_dict.update({list[0]['value'] : list[1]['value']}) 
         self.local_array_size = self.local_array_size + int(list[1]['value'])
 
     def print_global(self):
-        #print("In print_global Token_queue size is: " + str(Token_queue.qsize()))
+        if DEBUG:
+            print("print_global called")
         global Global_dict, Global_array_offset_dict, Global_array_size_dict
     	if self.local_array_size > 0:
             self.file.write("int global[" + str(self.local_array_size) + "];")
@@ -73,32 +79,19 @@ class Code_Generator(object):
             Global_array_offset_dict = copy.deepcopy(Local_array_offset_dict)
             Global_array_size_dict = copy.deepcopy(Local_array_size_dict)
             self.global_array_size = self.local_array_size
-        Local_dict.clear()
-        Local_array_size_dict.clear()
-        Local_array_offset_dict.clear()
-
-        print("Global structures are :")
-        print("Global Dict contents are :")
-        for key in Global_dict:
-            print("key is: " + str(key) + " value is: " + str(Global_dict[key]))
-        for key in Global_array_offset_dict:
-            print("key is: " + str(key) + " value is: " + str(Global_array_offset_dict[key]))
-        for key in Global_array_size_dict:
-            print("key is: " + str(key) + " value is: " + str(Global_array_size_dict[key]))       
-
-        self.local_array_size = 0
+        self.clear_local_data_structures()   
 
     def print_function(self):  #complete this function
 
-
-        print("====print function:====")
-        print("Global Dict contents are :, Global_dict size is: " + str(len(Global_dict)) + " Global_array_offset_dict size is: " + str(len(Global_array_offset_dict)) + " Global_array_size_dict: " + str(len(Global_array_size_dict)))
-        for key in Global_dict:
-            print("key is: " + str(key) + " value is: " + str(Global_dict[key]))
-        for key in Global_array_offset_dict:
-            print("key is: " + str(key) + " value is: " + str(Global_array_offset_dict[key]))
-        for key in Global_array_size_dict:
-            print("key is: " + str(key) + " value is: " + str(Global_array_size_dict[key]))   
+        if DEBUG:
+            print("print function called")
+            print("Global Dict contents are :, Global_dict size is: " + str(len(Global_dict)) + " Global_array_offset_dict size is: " + str(len(Global_array_offset_dict)) + " Global_array_size_dict: " + str(len(Global_array_size_dict)))
+            for key in Global_dict:
+                print("key is: " + str(key) + " value is: " + str(Global_dict[key]))
+            for key in Global_array_offset_dict:
+                print("key is: " + str(key) + " value is: " + str(Global_array_offset_dict[key]))
+            for key in Global_array_size_dict:
+                print("key is: " + str(key) + " value is: " + str(Global_array_size_dict[key]))   
 
         self.file.write("\n")
     	var_size = len(Local_dict)
@@ -126,50 +119,44 @@ class Code_Generator(object):
                 self.file.write("local")
             elif temp_token['value'] in Local_dict:
                 self.file.write("local[" + str(Local_dict[temp_token['value']]) + "]")
-            #elif temp_token['value'] in Local_array_offset_dict:
-            #    self.file.write("local[" + str(Local_array_offset_dict[temp_token['value']] + " +"))
-            #elif temp_token['value'] == '[':
-            #    continue
             elif temp_token['value'] in Global_dict:
                 self.file.write("global[" + str(Global_dict[temp_token['value']]) + "]")
-            #elif temp_token['value'] in Global_array_offset_dict:
-            #    self.file.write("global[" + str(Local_array_offset_dict[temp_token['value']] + " +"))
             elif temp_token['value'] in Global_array_offset_dict:
                 self.file.write("global")
             else:
                 self.file.write(temp_token['value'])
         self.file.write("\n")
+        self.clear_local_data_structures()
+
+    def clear_local_data_structures(self):
+        global Parameter_queue
         Local_dict.clear()
         Local_array_size_dict.clear()
-        Local_array_offset_dict.clear()
-        self.local_array_size = 0
+        Local_array_offset_dict.clear()   
+        while Parameter_queue.qsize() > 0:
+            Parameter_queue.get()   
+        self.local_array_size = 0  
 
     def print_function_declaration(self):
+        if DEBUG:
+            print("In print_function_declaration")
         self.file.write("\n")
         while Func_decl_queue.qsize() > 0:
             temp_token = Func_decl_queue.get()
-            self.file.write(temp_token['value'])
-        #self.file.write("\n")
+            self.file.write(temp_token['value'])     
 
     def resolve_expression(self):
+        if DEBUG:
+            print("In resolve_expression")
 
         Expression_list = []
-
         while Expression_queue.qsize() > 0:
             Expression_list.append(Expression_queue.get())
 
-        print("In resolve expression, Token_queue contents are :")
-        for i in range(len(Token_stack)):
-            print(Token_stack[i])
-
-        #-number is valid
-        #i=0
-        #while i < len(Expression_list)-1:
-        #    if Expression_list[i]['value'] == '-':
-        #        if Expression_list[i+1]['type'] == TOKEN_TYPES.NUMBER:
-        #            Expression_list[i+1]['value'] = '-' + Expression_list[i+1]['value']
-        #            del(Expression_list[i])
-        #    i = i+1
+        if DEBUG:
+            print("In resolve expression, Token_queue contents are :")
+            for i in range(len(Token_stack)):
+                print(Token_stack[i])
 
         while(len(Expression_list) > 1):
             start_index = -1
@@ -200,27 +187,25 @@ class Code_Generator(object):
                     temp_token_list.append(Expression_list[index])
                 del(Expression_list[start_index:end_index+1])
                 #parameter_token = self.resolve_single_expression(temp_queue)
-
                 function_name_token = Expression_list[start_index-2]
-                print("start index is: " + str(start_index))
+                if DEBUG:
+                    print("start index is: " + str(start_index))
                 del(Expression_list[start_index-2:start_index+1])
-
                 final_token = self.get_function_token(function_name_token, bracket_token, temp_token_list)
-
                 Expression_list.insert(start_index-2, final_token)
             else:
                 start_index = 0
                 end_index = len(Expression_list)-1
-
-                print("=== before final call, Expression list is ==")
-                for temp_token in Expression_list:
-                    print(temp_token['value'])
-                print("============================================")
+                if DEBUG:
+                    print("=== before final call, Expression list is ==")
+                    for temp_token in Expression_list:
+                        print(temp_token['value'])
+                    print("============================================")
                 temp_queue = Queue.Queue()
                 for index in range(start_index, end_index+1):
                     temp_queue.put(Expression_list[index])
-
-                print("start index is: " + str(start_index))
+                if DEBUG:
+                    print("start index is: " + str(start_index))
                 del(Expression_list[start_index:end_index+1])
 
                 final_token = self.resolve_single_expression(temp_queue)
@@ -228,7 +213,8 @@ class Code_Generator(object):
 
         while len(Token_stack) > 0:
             temp_token = Token_stack.pop()
-            print("temp token before putting in queue is: " + temp_token['value'])
+            if DEBUG:
+                print("temp token before putting in queue is: " + temp_token['value'])
             Token_queue.put(temp_token)
 
         space_separator = {'type':'SEPARATORS', 'value': ' '}
@@ -239,19 +225,21 @@ class Code_Generator(object):
     def resolve_single_expression(self, queue):
         values_stack = []
         operator_stack = []
-        #print("Expression queue size: " + str(Expression_queue.qsize()) + " length of token stack is: " + str(len(Token_stack)))
         while queue.qsize() != 0:
             token = queue.get()
-            print("expression token is: " + str(token['value']))
+            if DEBUG:
+                print("expression token is: " + str(token['value']))
             if token['type'] == TOKEN_TYPES.IDENTIFIER or token['type'] == TOKEN_TYPES.NUMBER or token['type'] == 'ARRAY_OFFSET':
                 values_stack.append(token)
             elif self.is_left_parenthesis(token):
                 operator_stack.append(token)
             elif self.is_right_parenthesis(token):
-                print("is right parenthesis: " + token['value'])
+                if DEBUG:
+                    print("is right parenthesis: " + token['value'])
                 while len(operator_stack) > 0 and not self.is_left_parenthesis(operator_stack[-1]):
                     operator = operator_stack.pop()
-                    print("operator: " + operator['value'])
+                    if DEBUG:
+                        print("operator: " + operator['value'])
                     value_2 = values_stack.pop()
                     value_1 = values_stack.pop()
                     result = self.apply_operator(operator, value_1, value_2)
@@ -278,7 +266,6 @@ class Code_Generator(object):
         else:
             final_value = values_stack.pop()
             return final_value
-        #print("resolve expression completed")
 
     def is_left_parenthesis(self, token):
         return token['value'] == '('
@@ -301,15 +288,16 @@ class Code_Generator(object):
             return True
 
     def get_function_token(self, function_name_token, bracket_token, temp_token_list):
-        print("========IN GET_FUNCTION_TOKEN ==========")
-        for temp_token in temp_token_list:
-            print(temp_token['value'])
-        print("========================================")
-
+        if DEBUG:
+            print("========IN GET_FUNCTION_TOKEN ==========")
+            for temp_token in temp_token_list:
+                print(temp_token['value'])
+            print("========================================")
 
         var_name = str(self.expression_token_counter) + "num"
         self.expression_token_counter = self.expression_token_counter + 1
-        print("var name is: " + var_name)
+        if DEBUG:
+            print("var name is: " + var_name)
         temp_token = {'type':TOKEN_TYPES.IDENTIFIER, 'value':var_name}
         self.add_to_dict(temp_token)
         equal_operator = {'type':TOKEN_TYPES.SYMBOL, 'value': '='}
@@ -346,14 +334,15 @@ class Code_Generator(object):
         Token_queue.put(right_bracket)
         Token_queue.put(semicolon_operator)
         Token_queue.put(newline_separator)
-        #self.expression_token_counter = self.expression_token_counter + 1
         return temp_token
 
     def apply_operator(self, operator, token1, token2):
-        print("Token queue size in apply_operator: " + str(Token_queue.qsize()))
+        if DEBUG:
+            print("Token queue size in apply_operator: " + str(Token_queue.qsize()))
         var_name = str(self.expression_token_counter) + "num"
         self.expression_token_counter = self.expression_token_counter + 1
-        print("var name is: " + var_name)
+        if DEBUG:
+            print("In apply_operator var name is: " + var_name)
         temp_token = {'type':TOKEN_TYPES.IDENTIFIER, 'value':var_name}
         self.add_to_dict(temp_token)
         equal_operator = {'type':TOKEN_TYPES.SYMBOL, 'value': '='}
@@ -371,8 +360,8 @@ class Code_Generator(object):
         Token_queue.put(token2)
         Token_queue.put(semicolon_operator)
         Token_queue.put(newline_separator)
-        #self.expression_token_counter = self.expression_token_counter + 1
-        print("Token queue size after apply_operator: " + str(Token_queue.qsize()))
+        if DEBUG:
+            print("Token queue size after apply_operator: " + str(Token_queue.qsize()))
         return temp_token
 
 
