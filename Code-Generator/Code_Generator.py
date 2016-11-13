@@ -27,13 +27,13 @@ sys.dont_write_bytecode=True
 
 # Global data structures
 Token_queue = Queue.Queue()
-Func_decl_queue = Queue.Queue()
-Local_dict = {}
-Local_array_offset_dict = {}
+Func_decl_queue = Queue.Queue() 
+Local_dict = {}  # Dictionary mapping local variables to local array index positions
+Local_array_offset_dict = {}  
 Local_array_size_dict = {}
 Global_array_offset_dict = {}
 Global_array_size_dict = {}
-Global_dict = {}
+Global_dict = {} # Dictionary mapping global variables to global array index position
 Parameter_queue = Queue.Queue()
 Token_stack = []
 Expression_queue = Queue.Queue()
