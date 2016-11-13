@@ -45,6 +45,7 @@ class Code_Generator(object):
         self.expression_token_counter = 0
         self.local_array_size = 0
         self.global_array_size = 0
+        self.condition_queue = Queue.Queue()
 
     def print_meta_statement(self):
         if DEBUG:
@@ -68,6 +69,86 @@ class Code_Generator(object):
         Local_array_offset_dict.update({list[0]['value'] : str(self.local_array_size)})
         Local_array_size_dict.update({list[0]['value'] : list[1]['value']}) 
         self.local_array_size = self.local_array_size + int(list[1]['value'])
+
+
+    def create_condition_stack(self):
+        global Token_queue
+        equal_operator = {'type':TOKEN_TYPES.SYMBOL, 'value': '='}
+        space_separator = {'type':'SEPARATORS', 'value': ' '}
+        newline_separator = {'type':'SEPARATORS', 'value': '\n'}
+        semicolon_operator = {'type':TOKEN_TYPES.SYMBOL, 'value': ';'} 
+        if_token = {'type':TOKEN_TYPES.RESERVED_WORD, 'value':'if'}
+        left_parenthesis = {'type':TOKEN_TYPES.SYMBOL, 'value':'('}
+        var_name = str(self.expression_token_counter) + "num"
+        self.expression_token_counter = self.expression_token_counter + 1
+        if DEBUG:
+            print("In create_condition_stack, var name is: " + var_name)
+        temp_token = {'type':TOKEN_TYPES.IDENTIFIER, 'value':var_name}
+        self.add_to_dict(temp_token)
+
+        condition_op_token = Token_queue.queue[-1]
+        del(Token_queue.queue[-1])
+        temp_stack = []
+        while Token_queue.queue[-1]['value'] != '(':
+            temp_stack.append(Token_queue.queue[-1])
+            del(Token_queue.queue[-1])
+
+        temp_stack.append(equal_operator)
+        temp_stack.append(space_separator)
+        temp_stack.append(temp_token)
+
+        while Token_queue.queue[-1]['value'] != 'if':
+            del(Token_queue.queue[-1])
+        del(Token_queue.queue[-1])
+
+        while len(temp_stack) > 0:
+            Token_queue.put(temp_stack.pop())
+
+        Token_queue.put(semicolon_operator)
+        Token_queue.put(newline_separator)
+
+        self.condition_queue.put(if_token)
+        self.condition_queue.put(left_parenthesis)
+        self.condition_queue.put(temp_token)
+        self.condition_queue.put(space_separator)
+        self.condition_queue.put(condition_op_token)
+
+
+    def resolve_condition_stack(self):
+        global Token_queue
+        equal_operator = {'type':TOKEN_TYPES.SYMBOL, 'value': '='}
+        space_separator = {'type':'SEPARATORS', 'value': ' '}
+        newline_separator = {'type':'SEPARATORS', 'value': '\n'}
+        semicolon_operator = {'type':TOKEN_TYPES.SYMBOL, 'value': ';'} 
+        if_token = {'type':TOKEN_TYPES.RESERVED_WORD, 'value':'if'}
+        left_parenthesis = {'type':TOKEN_TYPES.SYMBOL, 'value':'('}
+        var_name = str(self.expression_token_counter) + "num"
+        self.expression_token_counter = self.expression_token_counter + 1
+        if DEBUG:
+            print("In resolve_condition_stack, var name is: " + var_name)
+        temp_token = {'type':TOKEN_TYPES.IDENTIFIER, 'value':var_name}
+        self.add_to_dict(temp_token)
+
+        temp_stack = []
+        while Token_queue.queue[-1]['value'] != '\n':
+            temp_stack.append(Token_queue.queue[-1])
+            del(Token_queue.queue[-1])
+
+        temp_stack.append(equal_operator)
+        temp_stack.append(space_separator)
+        temp_stack.append(temp_token)
+
+        while len(temp_stack) > 0:
+            Token_queue.put(temp_stack.pop())
+
+        Token_queue.put(semicolon_operator)
+        Token_queue.put(newline_separator)
+
+        self.condition_queue.put(space_separator)
+        self.condition_queue.put(temp_token)
+
+        while self.condition_queue.qsize() > 0:
+            Token_queue.put(self.condition_queue.get())       
 
     def print_global(self):
         if DEBUG:

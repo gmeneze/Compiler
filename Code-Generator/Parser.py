@@ -37,6 +37,7 @@ class Parser(object):
         self.goto_counter = 0
         self.innermost_while_exit_token = None
         self.innermost_while_enter_token = None
+        self.is_condition_op = False
 
     def program(self):
         """ <program> --> empty
@@ -1409,12 +1410,16 @@ class Parser(object):
             print("<condition_op> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == '&&':
+            self.is_condition_op = True
             Token_queue.put(self.scanner.get_next_token())
+            self.code_generator.create_condition_stack()
             if DEBUG:
                 print("<condition_op> : return True")
             return True
         if lookahead['value'] == '||':
+            self.is_condition_op = True
             Token_queue.put(self.scanner.get_next_token())
+            self.code_generator.create_condition_stack()
             if DEBUG:
                 print("<condition_op> : return True")
             return True
@@ -1435,6 +1440,9 @@ class Parser(object):
             if self.expression():
                 if self.comparison_op():
                     if self.expression():
+                        if self.is_condition_op:
+                            self.code_generator.resolve_condition_stack()
+                        self.is_condition_op = False
                         if DEBUG:
                             print("<condition> : return True")
                         return True

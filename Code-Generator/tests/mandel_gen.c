@@ -27,18 +27,20 @@ return local[4];
 
 int check_for_bail(int real, int imag)
 {
-int local[3];
+int local[5];
 local[0] = real;
 local[1] = imag;
-if ( local[0] > 4000 || local[1] > 4000) goto c0;
+local[2] = local[0] > 4000 ;
+local[3] = local[1] > 4000;
+if(local[2] || local[3]) goto c0;
 goto c1;
 c0:;
 
 return 0;
 c1:;
 
-local[2] = complex_abs_squared(local[0],local[1]);
-if ( 1600 > local[2]) goto c2;
+local[4] = complex_abs_squared(local[0],local[1]);
+if ( 1600 > local[4]) goto c2;
 goto c3;
 c2:;
 
