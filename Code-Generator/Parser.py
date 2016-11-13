@@ -10,9 +10,17 @@ OUTPUT:
     pass <number of variables> <number of functions> <number of statements>
     OR
     error
+    
+    AND
+    produces an intermediate code which is consistent with the grammar specified in requirement doc:-
+    http://people.engr.ncsu.edu/xshen5/csc512_fall2016/projects/IntraFuncGen.html
+OUTPUT:
+    The parser produces an intermediate code which is consistent with the grammar specified in requirement doc.
+OUTPUT file name:
+    <input_file_name>_gen.c
+OUTPUT file location:
+    output file is created in the same location as input 
 """
-# Handling for brackets ([]) within expressions and otherwise
-# Handling for function declarations - eg - int a();
 
 from __future__ import division,print_function
 import Queue
