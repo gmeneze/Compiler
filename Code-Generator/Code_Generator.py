@@ -308,6 +308,7 @@ class Code_Generator(object):
 
 
         var_name = str(self.expression_token_counter) + "num"
+        self.expression_token_counter = self.expression_token_counter + 1
         print("var name is: " + var_name)
         temp_token = {'type':TOKEN_TYPES.IDENTIFIER, 'value':var_name}
         self.add_to_dict(temp_token)
@@ -345,12 +346,13 @@ class Code_Generator(object):
         Token_queue.put(right_bracket)
         Token_queue.put(semicolon_operator)
         Token_queue.put(newline_separator)
-        self.expression_token_counter = self.expression_token_counter + 1
+        #self.expression_token_counter = self.expression_token_counter + 1
         return temp_token
 
     def apply_operator(self, operator, token1, token2):
         print("Token queue size in apply_operator: " + str(Token_queue.qsize()))
         var_name = str(self.expression_token_counter) + "num"
+        self.expression_token_counter = self.expression_token_counter + 1
         print("var name is: " + var_name)
         temp_token = {'type':TOKEN_TYPES.IDENTIFIER, 'value':var_name}
         self.add_to_dict(temp_token)
@@ -369,7 +371,7 @@ class Code_Generator(object):
         Token_queue.put(token2)
         Token_queue.put(semicolon_operator)
         Token_queue.put(newline_separator)
-        self.expression_token_counter = self.expression_token_counter + 1
+        #self.expression_token_counter = self.expression_token_counter + 1
         print("Token queue size after apply_operator: " + str(Token_queue.qsize()))
         return temp_token
 
