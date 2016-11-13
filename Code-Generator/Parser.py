@@ -35,6 +35,9 @@ class Parser(object):
         self.DATA_DECLARATION_IND = False
         self.expression_counter = 0
         self.array_tokens_list = []
+        self.goto_counter = 0
+        self.innermost_while_exit_token = None
+        self.innermost_while_enter_token = None
 
     def program(self):
         """ <program> --> empty
@@ -815,13 +818,13 @@ class Parser(object):
             print("<block_statements> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == '{':
-            Token_queue.put(self.scanner.get_next_token())
+            self.scanner.get_next_token()
             if self.statements():
                 if DEBUG:
                     print("matching closing brace")
                 temp_token = self.scanner.get_next_token()
                 if temp_token['value'] == '}':
-                    Token_queue.put(temp_token)
+                    #Token_queue.put(temp_token)
                     if DEBUG:
                         print("<block_statements> : return True")
                     return True
@@ -1295,7 +1298,36 @@ class Parser(object):
                     temp_token = self.scanner.get_next_token()
                     if temp_token['value'] == ')':
                         Token_queue.put(temp_token)
+                        
+                        goto_token_1 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'goto c' + str(self.goto_counter)}
+                        target_token_1 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'c' + str(self.goto_counter) + ':'}
+                        
+                        self.goto_counter = self.goto_counter + 1
+                        
+                        semicolon_token = {'type':TOKEN_TYPES.SYMBOL, 'value': ';'}
+                        newline_token =  {'type':TOKEN_TYPES.SYMBOL, 'value': '\n'}
+                        
+                        Token_queue.put(goto_token_1)
+                        Token_queue.put(semicolon_token)
+                        Token_queue.put(newline_token)
+                        
+                        goto_token_2 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'goto c' + str(self.goto_counter)}
+                        target_token_2 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'c' + str(self.goto_counter) + ':'}
+                        
+                        self.goto_counter = self.goto_counter + 1
+                        
+                        Token_queue.put(goto_token_2)
+                        Token_queue.put(semicolon_token)
+                        Token_queue.put(newline_token)
+                        
+                        Token_queue.put(target_token_1)
+                        Token_queue.put(semicolon_token)
+                        Token_queue.put(newline_token)
+
                         if self.block_statements():
+                            Token_queue.put(target_token_2)
+                            Token_queue.put(semicolon_token)
+                            Token_queue.put(newline_token)
                             if DEBUG:
                                 print("<if_statement> : return True")
                             return True
@@ -1463,7 +1495,24 @@ class Parser(object):
             print("<while_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'while':
-            Token_queue.put(self.scanner.get_next_token())
+            
+            goto_token_0 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'goto c' + str(self.goto_counter)}
+            target_token_0 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'c' + str(self.goto_counter) + ':'}  
+            self.innermost_while_enter_token = goto_token_0
+
+            semicolon_token = {'type':TOKEN_TYPES.SYMBOL, 'value': ';'}
+            newline_token =  {'type':TOKEN_TYPES.SYMBOL, 'value': '\n'}
+
+            self.goto_counter = self.goto_counter + 1       
+
+            Token_queue.put(newline_token)
+            Token_queue.put(target_token_0)
+            Token_queue.put(semicolon_token)
+            Token_queue.put(newline_token)
+            
+            if_token = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'if'}
+            self.scanner.get_next_token()
+            Token_queue.put(if_token)
             temp_token = self.scanner.get_next_token()
             if temp_token['value'] == '(':
                 Token_queue.put(temp_token)
@@ -1471,7 +1520,39 @@ class Parser(object):
                     temp_token = self.scanner.get_next_token()
                     if temp_token['value'] == ')':
                         Token_queue.put(temp_token)
+                        
+                        goto_token_1 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'goto c' + str(self.goto_counter)}
+                        target_token_1 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'c' + str(self.goto_counter) + ':'}
+                        
+                        self.goto_counter = self.goto_counter + 1
+                        
+                        Token_queue.put(goto_token_1)
+                        Token_queue.put(semicolon_token)
+                        Token_queue.put(newline_token)
+                        
+                        goto_token_2 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'goto c' + str(self.goto_counter)}
+                        target_token_2 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'c' + str(self.goto_counter) + ':'}
+                        self.innermost_while_exit_token = goto_token_2
+
+                        self.goto_counter = self.goto_counter + 1
+                        
+                        Token_queue.put(goto_token_2)
+                        Token_queue.put(semicolon_token)
+                        Token_queue.put(newline_token)
+                        
+                        Token_queue.put(target_token_1)
+                        Token_queue.put(semicolon_token)
+                        Token_queue.put(newline_token)
                         if self.block_statements():
+
+                            Token_queue.put(goto_token_0)
+                            Token_queue.put(semicolon_token)
+                            Token_queue.put(newline_token)
+
+                            Token_queue.put(target_token_2)
+                            Token_queue.put(semicolon_token)
+                            Token_queue.put(newline_token)                            
+
                             if DEBUG:
                                 print("<while_statement> : return True")
                             return True
@@ -1562,7 +1643,8 @@ class Parser(object):
             print("<break_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'break':
-            Token_queue.put(self.scanner.get_next_token())
+            self.scanner.get_next_token()
+            Token_queue.put(self.innermost_while_exit_token)
             temp_token = self.scanner.get_next_token()
             if temp_token['value'] == ';':
                 Token_queue.put(temp_token)
@@ -1587,7 +1669,8 @@ class Parser(object):
             print("<continue_statement> called with input : <%s> " % (self.scanner.token_lookahead(1)))
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'continue':
-            Token_queue.put(self.scanner.get_next_token())
+            self.scanner.get_next_token()
+            Token_queue.put(self.innermost_while_enter_token)
             temp_token = self.scanner.get_next_token()
             if temp_token['value'] ==  ';':
                 Token_queue.put(temp_token)
