@@ -34,31 +34,33 @@ II. Program functionality and brief description:
 The new file Code_Generator.py specifies the functions and global data structure go get the generated code using the Parser and Scanner. The parser and scanner populate these data structures, the rest of the parser and scanner is same as it was from the parser project (additional comments have been put in places to increase readability).
 
 Overview of data structures used :-
-
 - Data Dictionaries 
     1. Maintained for global data declarations and local data declarations (within a function). 
     2. The local data dictionaries are cleared out after parsing each function.
     3. 6 dictionaries used in all :-
-    	1) To maintain mapping of local variables to local array
-    	2) To maintain mapping of global variables to global array
-    	3) To maintain mapping of local array name to it's size.
-    	4) To maintain mapping of local array name to it's offset position in local array.
-    	5) To maintain mapping of global array name to it's size.
- 		6) To maintain mapping of global array name to it's offset position in global array.
+        1) To maintain mapping of local variables to local array
+        2) To maintain mapping of global variables to global array
+        3) To maintain mapping of local array name to it's size.
+        4) To maintain mapping of local array name to it's offset position in local array.
+        5) To maintain mapping of global array name to it's size.
+        6) To maintain mapping of global array name to it's offset position in global array.
+    4. Whenever an array is referenced in the program, the offset will be added to the index to get the right element in local/global array.
 
 - Queues
-	1. Used as buffers for processing data and for printing to file.
-	2. 4 Queues used in all :-
-		1) A buffer to hold function declaration only, it is filled up whenever a new function declaration is encountered and is written immediately after declaration to output file.
-		2) A buffer to hold function parameters only, it is filled up whenever function parameters are encountered and is written immediately after all parameters have been specified.
-		3) A buffer which contains data to be written to output file in the correct order, per function. This buffer includes most data, except for that explained below. This buffer is written out whenever a function body is completed.
-		4) A buffer to hold an entire expression. The expression is then broken down and processed to satisfy the specified conditions.
+   1. Used as buffers for processing data and for printing to file.
+   2. 4 Queues used in all :-
+       1) A buffer to hold function declaration only, it is filled up whenever a new function declaration is encountered and is written immediately after declaration to output file.
+       2) A buffer to hold function parameters only, it is filled up whenever function parameters are encountered and is written immediately after all parameters have been specified.
+       3) A buffer which contains data to be written to output file in the correct order, per function. This buffer includes most data, except for that explained below. This buffer is written out whenever a function body is completed.
+       4) A buffer to hold an entire expression. The expression is then broken down and processed to satisfy the specified conditions.
 
-- Stack :- One stack is used during expression evaluation, this stack holds temporary data which is eventually moved to the buffer containing function body.
+- Stack :- 
+   1. One stack is used during expression evaluation, this stack holds temporary data which is eventually moved to the buffer containing function body.
+   2. One stack is used in Parser to keep track of goto labels of while loops for break and continue statements.
 
-- Class variables in Parser needed to jump keep track of goto labels used in innermost while loop for break and continue statements.
+Expression evaluation :-
+Expression evaluation is done using the standard stack method of evaluation. This takes care of precedence.
 
 Program assumptions:
 - The program will give error if break and continue statements are used outside a loop body, which is conforming to the gcc standard.
-
 - No array can be used as a function parameter, which meets to rules set out in the original grammar for Parser.
