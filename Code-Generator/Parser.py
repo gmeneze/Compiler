@@ -30,7 +30,7 @@ import sys,re,traceback,random, operator, string, time
 sys.dont_write_bytecode=True
 
 FIRST_TIME_IND = True
-DEBUG = True
+DEBUG = False 
 
 class Parser(object):
     def __init__(self, filename):
