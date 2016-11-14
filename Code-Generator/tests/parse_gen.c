@@ -7,7 +7,7 @@
 void bar(void)
 {
 int local[2];
-if ( local[0] > local[1])goto c0;
+if ( local[0] > local[1]) goto c0;
 goto c1;
 c0:;
 

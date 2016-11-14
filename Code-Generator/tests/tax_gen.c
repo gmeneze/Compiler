@@ -10,12 +10,12 @@ int local[1];
 local[0] = -1;
 c0:;
 
-if ( 0 > local[0])goto c1;
+if ( 0 > local[0]) goto c1;
 goto c2;
 c1:;
 
 read(local[0]);
-if ( 0 > local[0])goto c3;
+if ( 0 > local[0]) goto c3;
 goto c4;
 c3:;
 
@@ -54,7 +54,7 @@ print("Enter <1> if your parents or someone else can claim you on their");
 print(" return. \nEnter <0> otherwise: ");
 local[28] = getinput();
 local[12] = local[28];
-if ( 0 != local[12])goto c5;
+if ( 0 != local[12]) goto c5;
 goto c6;
 c5:;
 
@@ -62,7 +62,7 @@ local[29] = local[0] + 250;
 local[14] = local[29];
 local[15] = 700;
 local[16] = local[15];
-if ( local[16] < local[14])goto c7;
+if ( local[16] < local[14]) goto c7;
 goto c8;
 c7:;
 
@@ -72,14 +72,14 @@ c8:;
 print("Enter <1> if you are single, <0> if you are married: ");
 local[30] = getinput();
 local[13] = local[30];
-if ( 0 != local[13])goto c9;
+if ( 0 != local[13]) goto c9;
 goto c10;
 c9:;
 
 local[17] = 7350;
 c10:;
 
-if ( 0 == local[13])goto c11;
+if ( 0 == local[13]) goto c11;
 goto c12;
 c11:;
 
@@ -87,7 +87,7 @@ local[17] = 4400;
 c12:;
 
 local[18] = local[16];
-if ( local[18] > local[17])goto c13;
+if ( local[18] > local[17]) goto c13;
 goto c14;
 c13:;
 
@@ -95,7 +95,7 @@ local[18] = local[17];
 c14:;
 
 local[19] = 0;
-if ( local[13] == 0)goto c15;
+if ( local[13] == 0) goto c15;
 goto c16;
 c15:;
 
@@ -103,7 +103,7 @@ print("Enter <1> if your spouse can be claimed as a dependant, ");
 print("enter <0> if not: ");
 local[31] = getinput();
 local[22] = local[31];
-if ( 0 == local[22])goto c17;
+if ( 0 == local[22]) goto c17;
 goto c18;
 c17:;
 
@@ -117,21 +117,21 @@ local[20] = local[32];
 local[4] = local[20];
 c6:;
 
-if ( 0 == local[12])goto c19;
+if ( 0 == local[12]) goto c19;
 goto c20;
 c19:;
 
 print("Enter <1> if you are single, <0> if you are married: ");
 local[33] = getinput();
 local[13] = local[33];
-if ( 0 != local[13])goto c21;
+if ( 0 != local[13]) goto c21;
 goto c22;
 c21:;
 
 local[4] = 12950;
 c22:;
 
-if ( 0 == local[13])goto c23;
+if ( 0 == local[13]) goto c23;
 goto c24;
 c23:;
 
@@ -142,7 +142,7 @@ c20:;
 
 local[34] = local[3] - local[4];
 local[5] = local[34];
-if ( local[5] < 0)goto c25;
+if ( local[5] < 0) goto c25;
 goto c26;
 c25:;
 
@@ -159,7 +159,7 @@ print("enter 0 otherwise: ");
 local[36] = getinput();
 local[21] = local[36];
 local[7] = 0;
-if ( 0 != local[21])goto c27;
+if ( 0 != local[21]) goto c27;
 goto c28;
 c27:;
 
@@ -179,14 +179,14 @@ print("Your total tax liability is: ");
 write( local[9]);
 local[41] = local[8] - local[9];
 local[10] = local[41];
-if ( local[10] < 0)goto c29;
+if ( local[10] < 0) goto c29;
 goto c30;
 c29:;
 
 local[10] = 0;
 c30:;
 
-if ( local[10] > 0)goto c31;
+if ( local[10] > 0) goto c31;
 goto c32;
 c31:;
 
@@ -196,7 +196,7 @@ c32:;
 
 local[42] = local[9] - local[8];
 local[11] = local[42];
-if ( local[11] >= 0)goto c33;
+if ( local[11] >= 0) goto c33;
 goto c34;
 c33:;
 
@@ -204,7 +204,7 @@ print("Bummer. You owe the IRS a check for $");
 write( local[11]);
 c34:;
 
-if ( local[11] < 0)goto c35;
+if ( local[11] < 0) goto c35;
 goto c36;
 c35:;
 

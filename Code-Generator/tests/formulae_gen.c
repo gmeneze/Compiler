@@ -10,12 +10,12 @@ int local[1];
 local[0] = 0;
 c0:;
 
-if ( 0 >= local[0])goto c1;
+if ( 0 >= local[0]) goto c1;
 goto c2;
 c1:;
 
 read(local[0]);
-if ( 0 > local[0])goto c3;
+if ( 0 > local[0]) goto c3;
 goto c4;
 c3:;
 

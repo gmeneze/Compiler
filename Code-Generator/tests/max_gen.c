@@ -7,7 +7,7 @@ int max(int a, int b) {
 int local[2];
 local[0] = a;
 local[1] = b;
-if ( local[0]> local[1])goto c0;
+if ( local[0]> local[1]) goto c0;
 goto c1;
 c0:;
  return local[0];

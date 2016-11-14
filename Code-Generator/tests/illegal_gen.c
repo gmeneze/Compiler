@@ -29,22 +29,22 @@ global[ local[7]] = 13;
 
 int main(void)
 {
-int local[4];
+int local[5];
 populate_arrays();
 local[0] = 0;
 local[1] = 8;
 print("The first few digits of the Fibonacci sequence are:\n");
 c0:;
 
-if ( local[0] < local[1])goto c1;
+if ( local[0] < local[1]) goto c1;
 goto c2;
 c1:;
 
-local[2] = 0 + local[0];
-local[2] = global[local[2]];
+local[3] = 0 + local[0];
+local[2] = global[local[3]];
 write( local[2]);
-local[3] = local[0] + 1;
-local[0] = local[3];
+local[4] = local[0] + 1;
+local[0] = local[4];
 goto c0;
 c2:;
 

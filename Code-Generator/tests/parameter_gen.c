@@ -3,23 +3,19 @@
 #define write(x) printf("%d\n",x)
 
 
-int max(int a, int b) {
-int local[2];
-local[0] = a;
-local[1] = b;
-if ( local[0]> local[1])goto c0;
-goto c1;
-c0:;
- return local[0];
-c1:;
-
-return local[1];
+void foo(int m,int n) {
+int local[4];
+local[0] = m;
+local[1] = n;
+local[2] = local[0] + local[1];
+local[0] = local[2];
+local[3] = local[1] + local[0];
+local[1] = local[3];
 }
 
 int main() {
-int local[3];
+int local[1];
 read(local[0]);
-read(local[1]);
-local[2] = max(local[0],local[1]);
-write( local[2]);
+foo( local[0], local[0]);
+write( local[0]);
 }

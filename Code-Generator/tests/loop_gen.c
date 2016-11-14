@@ -9,7 +9,7 @@ read(local[0]);
 local[1] = 0;
 c0:;
 
-if ( local[0]> 0)goto c1;
+if ( local[0]> 0) goto c1;
 goto c2;
 c1:;
  local[2] = local[1] + local[0];
