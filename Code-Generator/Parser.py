@@ -1964,7 +1964,8 @@ class Parser(object):
             if self.expr_list():
                 temp_token = self.scanner.get_next_token()
                 if temp_token['value'] == ')':
-                    print("Expression_queue size: " + str(Expression_queue.qsize()))
+                    if DEBUG:
+                        print("Expression_queue size: " + str(Expression_queue.qsize()))
                     Expression_queue.put(temp_token)
                     if DEBUG:
                         print("<factor_z> : return True")

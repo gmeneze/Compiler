@@ -26,6 +26,7 @@ An example:
 % python Parser.py foo.c
 
 Upon success this will create a foo_gen.c with the generated code in the same directory as input file.
+It will also printout the number of variables, functions and statements on the terminal (since the parser is same as for last project).
 
 The source is written for python 2.7 and up. It has been tested on the provided VCL environment.
 
