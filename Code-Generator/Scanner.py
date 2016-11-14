@@ -130,9 +130,7 @@ class Scanner(object):
                 if Func_decl_queue.qsize() > 0:
                     Func_decl_queue.put({'type': 'SEPARATORS', 'value':ch})
                 else:
-                    print("character is: [" + ch + "]")
                     Token_queue.put({'type': 'SEPARATORS', 'value':str(ch)})
-                    print("Token queue size: " + str(Token_queue.qsize()))
                 continue
                 #return {'type': 0, 'value':ch}  # 0 stands for delimiter
             elif ch.isalpha():
@@ -149,7 +147,6 @@ class Scanner(object):
                     return token
                 elif token['type'] == TOKEN_TYPES.META_STATEMENT:
                     Token_queue.put(token)
-                    print("adding to token queue")
                     continue
             else:
                 ret_val = Token.is_symbol(ch, self)

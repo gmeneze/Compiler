@@ -25,18 +25,18 @@ TOKEN_TYPES = enum(IDENTIFIER=1, NUMBER=2, RESERVED_WORD=3, SYMBOL=4, STRING=5, 
 DEBUG = False
 sys.dont_write_bytecode=True
 
-# Global data structures
-Token_queue = Queue.Queue()
-Func_decl_queue = Queue.Queue() 
+# Global data structures 
+Token_queue = Queue.Queue() # Buffer to hold function data.
+Func_decl_queue = Queue.Queue()  # Buffer to hold function declarations.
 Local_dict = {}  # Dictionary mapping local variables to local array index positions
-Local_array_offset_dict = {}  
-Local_array_size_dict = {}
-Global_array_offset_dict = {}
-Global_array_size_dict = {}
+Local_array_offset_dict = {}  # Dictionary mapping local array name to it's offset in local array
+Local_array_size_dict = {}  # Dictionary mapping local array name to it's size.
+Global_array_offset_dict = {} # Dictionary mapping global array to it's offset in global array.
+Global_array_size_dict = {} # Dictionary mapping global array name to it's size.
 Global_dict = {} # Dictionary mapping global variables to global array index position
-Parameter_queue = Queue.Queue()
-Token_stack = []
-Expression_queue = Queue.Queue()
+Parameter_queue = Queue.Queue() # Buffer to hold functions parameter list
+Token_stack = [] # Stack used for expression evaluation
+Expression_queue = Queue.Queue() # Buffer to hold all tokens of an expression
 
 class Code_Generator(object):
     """ Encapsulate all functionality related to Intermediate Code Generation. """

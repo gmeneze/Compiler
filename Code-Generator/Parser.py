@@ -30,7 +30,7 @@ import sys,re,traceback,random, operator, string, time
 sys.dont_write_bytecode=True
 
 FIRST_TIME_IND = True
-DEBUG = True
+DEBUG = False 
 
 class Parser(object):
     def __init__(self, filename):
@@ -42,9 +42,9 @@ class Parser(object):
         self.DATA_DECLARATION_IND = False
         self.expression_counter = 0
         self.array_tokens_list = []
-        self.goto_counter = 0
-        self.innermost_while_exit_token = None
-        self.innermost_while_enter_token = None
+        self.goto_counter = 0 # counter to create a unique goto token when needed
+        self.innermost_while_exit_token_stack = [] # stack to hold exit tokens of each encountered while loop, peeking into it gives the last encountered goto token. 
+        self.innermost_while_enter_token_stack = [] # same as above, holds entry tokens instead.
         self.is_condition_op = False
 
     def program(self):
@@ -1506,7 +1506,7 @@ class Parser(object):
             
             goto_token_0 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'goto c' + str(self.goto_counter)}
             target_token_0 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'c' + str(self.goto_counter) + ':'}  
-            self.innermost_while_enter_token = goto_token_0
+            self.innermost_while_enter_token_stack.append(goto_token_0)
 
             semicolon_token = {'type':TOKEN_TYPES.SYMBOL, 'value': ';'}
             newline_token =  {'type':TOKEN_TYPES.SYMBOL, 'value': '\n'}
@@ -1540,7 +1540,7 @@ class Parser(object):
                         
                         goto_token_2 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'goto c' + str(self.goto_counter)}
                         target_token_2 = {'type':TOKEN_TYPES.RESERVED_WORD, 'value': 'c' + str(self.goto_counter) + ':'}
-                        self.innermost_while_exit_token = goto_token_2
+                        self.innermost_while_exit_token_stack.append(goto_token_2)
 
                         self.goto_counter = self.goto_counter + 1
                         
@@ -1560,6 +1560,9 @@ class Parser(object):
                             Token_queue.put(target_token_2)
                             Token_queue.put(semicolon_token)
                             Token_queue.put(newline_token)                            
+
+                            self.innermost_while_enter_token_stack.pop()
+                            self.innermost_while_exit_token_stack.pop()
 
                             if DEBUG:
                                 print("<while_statement> : return True")
@@ -1652,7 +1655,7 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'break':
             self.scanner.get_next_token()
-            Token_queue.put(self.innermost_while_exit_token)
+            Token_queue.put(self.innermost_while_exit_token_stack[-1])
             temp_token = self.scanner.get_next_token()
             if temp_token['value'] == ';':
                 Token_queue.put(temp_token)
@@ -1678,7 +1681,7 @@ class Parser(object):
         lookahead = self.scanner.token_lookahead(1)
         if lookahead['value'] == 'continue':
             self.scanner.get_next_token()
-            Token_queue.put(self.innermost_while_enter_token)
+            Token_queue.put(self.innermost_while_enter_token_stack[-1])
             temp_token = self.scanner.get_next_token()
             if temp_token['value'] ==  ';':
                 Token_queue.put(temp_token)
@@ -1961,7 +1964,8 @@ class Parser(object):
             if self.expr_list():
                 temp_token = self.scanner.get_next_token()
                 if temp_token['value'] == ')':
-                    print("Expression_queue size: " + str(Expression_queue.qsize()))
+                    if DEBUG:
+                        print("Expression_queue size: " + str(Expression_queue.qsize()))
                     Expression_queue.put(temp_token)
                     if DEBUG:
                         print("<factor_z> : return True")
